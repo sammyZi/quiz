@@ -1,0 +1,58 @@
+{
+  "id": "net-004-tcp-handshake",
+  "chapter": 1,
+  "module": "net",
+  "title": "The TCP handshake",
+  "hook": "Before a single byte of your request is sent, your phone and the server shake hands three times.",
+  "nodes": [
+    { "id": "client", "label": "You", "kind": "client", "lane": 0 },
+    { "id": "server", "label": "Server", "kind": "server", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Your device reaches out first: \"I'd like to start a connection.\"",
+      "packets": [
+        { "id": "p1", "from": "client", "to": "server", "variant": "control", "outcome": "pass", "label": "SYN" }
+      ],
+      "nodeCaptions": {
+        "client": "SYN = \"synchronize\" — this is the opening handshake."
+      }
+    },
+    {
+      "caption": "The server agrees, and proposes the same back.",
+      "packets": [
+        { "id": "p2", "from": "server", "to": "client", "variant": "control", "outcome": "pass", "label": "SYN-ACK" }
+      ],
+      "nodeCaptions": {
+        "server": "SYN-ACK acknowledges your request and sends its own synchronize signal."
+      }
+    },
+    {
+      "caption": "Your device confirms — now both sides agree the connection is open.",
+      "packets": [
+        { "id": "p3", "from": "client", "to": "server", "variant": "control", "outcome": "pass", "label": "ACK" }
+      ],
+      "nodeCaptions": {
+        "server": "Only after this third packet does the connection actually exist — real data can flow now."
+      }
+    }
+  ],
+  "takeaways": [
+    "TCP's three-way handshake (SYN, SYN-ACK, ACK) happens before any real data — it's just agreeing the connection is open.",
+    "Both sides need to confirm, not just one — that's why it's three steps, not two.",
+    "This overhead is why a new connection feels slightly slower than one that's already open and reused."
+  ],
+  "quiz": [
+    {
+      "question": "What is actually being sent during the TCP handshake?",
+      "choices": [
+        "The full content of your request",
+        "Login credentials",
+        "Control signals that establish the connection, with no request data yet",
+        "An encryption key"
+      ],
+      "correctIndex": 2,
+      "explanation": "SYN, SYN-ACK, and ACK are all control signals — they set up the connection. Your actual request data only travels after the handshake completes."
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "id": "net-005-http",
+  "chapter": 1,
+  "module": "net",
+  "title": "HTTP",
+  "hook": "Once the connection is open, your request needs a shared language — that language is HTTP.",
+  "nodes": [
+    { "id": "client", "label": "You", "kind": "client", "lane": 0 },
+    { "id": "server", "label": "Server", "kind": "server", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Your browser sends a structured request: a method, a path, and headers.",
+      "packets": [
+        { "id": "p1", "from": "client", "to": "server", "variant": "request", "outcome": "pass", "label": "GET /index.html" }
+      ],
+      "nodeCaptions": {
+        "client": "GET means \"just give me this\" — one of a handful of HTTP methods."
+      }
+    },
+    {
+      "caption": "The server replies with a status code and, usually, the content you asked for.",
+      "packets": [
+        { "id": "p2", "from": "server", "to": "client", "variant": "response", "outcome": "pass", "label": "200 OK" }
+      ],
+      "nodeCaptions": {
+        "server": "200 means success. A different number — like 404 — tells you something else happened."
+      }
+    }
+  ],
+  "takeaways": [
+    "HTTP is the format both sides agree to use: a method and path going one way, a status code and content coming back.",
+    "The status code tells you what happened before you even look at the content — 200 is success, 404 is \"not found.\"",
+    "HTTP rides on top of the TCP connection — the handshake opens the pipe, HTTP is what flows through it."
+  ],
+  "quiz": [
+    {
+      "question": "What does an HTTP status code like 200 or 404 tell you?",
+      "choices": [
+        "How fast the server responded",
+        "Whether the connection is encrypted",
+        "The outcome of the request — success, not found, error, and so on",
+        "How much data was sent"
+      ],
+      "correctIndex": 2,
+      "explanation": "Status codes are a compact way for the server to say what happened, independent of whatever content came back with it."
+    }
+  ]
+}

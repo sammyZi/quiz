@@ -1,0 +1,59 @@
+{
+  "id": "net-003-dns",
+  "chapter": 1,
+  "module": "net",
+  "title": "DNS",
+  "hook": "You typed a name, not a number — something has to translate before your request can even leave.",
+  "nodes": [
+    { "id": "client", "label": "You", "kind": "client", "lane": 0 },
+    { "id": "dns", "label": "DNS", "kind": "dns", "lane": 0 },
+    { "id": "server", "label": "Server\n93.184.216.34", "kind": "server", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Before anything else, your phone asks: what address does \"example.com\" actually point to?",
+      "packets": [
+        { "id": "p1", "from": "client", "to": "dns", "variant": "request", "outcome": "pass", "label": "example.com?" }
+      ],
+      "nodeCaptions": {
+        "dns": "DNS is the internet's phone book — it maps names humans type to IP addresses machines route."
+      }
+    },
+    {
+      "caption": "DNS looks it up and answers with the real address.",
+      "packets": [
+        { "id": "p2", "from": "dns", "to": "client", "variant": "response", "outcome": "pass", "label": "93.184.216.34" }
+      ],
+      "nodeCaptions": {
+        "client": "Now your device knows exactly where to send the actual request."
+      }
+    },
+    {
+      "caption": "Only now does your real request go out — straight to that address.",
+      "packets": [
+        { "id": "p3", "from": "client", "to": "server", "variant": "request", "outcome": "pass", "label": "to 93.184.216.34" }
+      ],
+      "nodeCaptions": {
+        "server": "The server never sees the name you typed — only the IP address DNS resolved it to."
+      }
+    }
+  ],
+  "takeaways": [
+    "DNS turns a name you can remember into the IP address a router can actually use.",
+    "This lookup happens before your real request goes anywhere — it's an extra round trip, hidden from you.",
+    "The server itself only ever sees the resolved IP, never the domain name you typed."
+  ],
+  "quiz": [
+    {
+      "question": "What does DNS actually do?",
+      "choices": [
+        "It encrypts your request so no one can read it",
+        "It translates a domain name into the IP address that name points to",
+        "It speeds up your internet connection",
+        "It stores a copy of every website"
+      ],
+      "correctIndex": 1,
+      "explanation": "DNS is purely a lookup — name in, IP address out. It doesn't encrypt, cache the site's content, or affect your connection speed directly."
+    }
+  ]
+}

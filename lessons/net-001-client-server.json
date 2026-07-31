@@ -1,0 +1,51 @@
+{
+  "id": "net-001-client-server",
+  "chapter": 1,
+  "module": "net",
+  "title": "Client & server",
+  "hook": "Every app on your phone is really just a conversation between two computers.",
+  "nodes": [
+    { "id": "client", "label": "You", "kind": "client", "lane": 0 },
+    { "id": "server", "label": "Server", "kind": "server", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "You tap something. Your phone sends a request out onto the network.",
+      "packets": [
+        { "id": "p1", "from": "client", "to": "server", "variant": "request", "outcome": "pass", "label": "request" }
+      ],
+      "nodeCaptions": {
+        "client": "The client: whatever asked for something — a phone, a laptop, a smartwatch.",
+        "server": "A server is just a computer that's always on, waiting to answer requests."
+      }
+    },
+    {
+      "caption": "The server does its work, then sends something back.",
+      "packets": [
+        { "id": "p2", "from": "server", "to": "client", "variant": "response", "outcome": "pass", "label": "response" }
+      ],
+      "nodeCaptions": {
+        "server": "It figured out what you asked for and packaged up an answer.",
+        "client": "Your phone receives the response and shows it to you."
+      }
+    }
+  ],
+  "takeaways": [
+    "\"Client\" just means whoever is asking. \"Server\" just means whoever is listening and answering.",
+    "Almost everything else in networking is a variation on this one request-response shape.",
+    "A server can be answering thousands of clients at once — it doesn't know or care which app you're using."
+  ],
+  "quiz": [
+    {
+      "question": "What makes a computer a \"server\"?",
+      "choices": [
+        "It's more powerful hardware than a client",
+        "It's a computer that listens for requests and responds to them",
+        "It's only used by companies, never by individuals",
+        "It doesn't have an operating system"
+      ],
+      "correctIndex": 1,
+      "explanation": "Server is a role, not a hardware spec — any computer that listens for and answers requests is acting as a server."
+    }
+  ]
+}

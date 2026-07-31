@@ -1,0 +1,72 @@
+{
+  "id": "net-006-firewall",
+  "chapter": 1,
+  "module": "net",
+  "title": "Firewalls",
+  "hook": "Not every packet that shows up at your server's door is one you actually asked for.",
+  "nodes": [
+    { "id": "client", "label": "You", "kind": "client", "lane": 0 },
+    { "id": "attacker", "label": "Attacker", "kind": "client", "lane": 1 },
+    { "id": "firewall", "label": "Firewall", "kind": "firewall", "lane": 0 },
+    { "id": "server", "label": "Server", "kind": "server", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Your normal request reaches the firewall first, before the server ever sees it.",
+      "packets": [
+        { "id": "p1", "from": "client", "to": "firewall", "variant": "request", "outcome": "pass", "label": "request" }
+      ],
+      "nodeCaptions": {
+        "firewall": "A firewall sits in front of the server and checks every packet against a set of rules before deciding what happens next."
+      }
+    },
+    {
+      "caption": "It matches the rules, so the firewall lets it through to the server.",
+      "packets": [
+        { "id": "p2", "from": "firewall", "to": "server", "variant": "request", "outcome": "pass", "label": "request" }
+      ],
+      "nodeCaptions": {
+        "server": "The server only ever sees traffic the firewall has already approved."
+      }
+    },
+    {
+      "caption": "Now someone else sends a packet the rules don't allow.",
+      "packets": [
+        { "id": "p3", "from": "attacker", "to": "server", "variant": "malicious", "outcome": "blocked", "stopsAt": "firewall", "label": "blocked" }
+      ],
+      "nodeCaptions": {
+        "attacker": "This packet was addressed to the server, same as any other — the firewall is what stands in its way.",
+        "firewall": "It never reaches the server. The firewall drops it right here, based on its rules."
+      }
+    }
+  ],
+  "takeaways": [
+    "A firewall doesn't block \"bad people\" — it blocks packets that don't match its rules, whoever sent them.",
+    "The server never even knows a blocked packet existed — the firewall stops it before it arrives.",
+    "The same firewall that blocks unwanted traffic lets your own legitimate requests straight through."
+  ],
+  "quiz": [
+    {
+      "question": "Where does a firewall stop a blocked packet?",
+      "choices": [
+        "At the server, after it's been processed",
+        "At the firewall itself, before it ever reaches the server",
+        "It doesn't stop the packet, it just logs it",
+        "At the attacker's own device"
+      ],
+      "correctIndex": 1,
+      "explanation": "The firewall sits in front of the server and drops disallowed packets there — the server is never involved."
+    },
+    {
+      "question": "What decides whether the firewall blocks a packet?",
+      "choices": [
+        "Whether the sender has bad intentions",
+        "Whether the packet matches the firewall's configured rules",
+        "How large the packet is",
+        "Whether the server is currently busy"
+      ],
+      "correctIndex": 1,
+      "explanation": "Firewalls evaluate rules — source/destination, port, protocol — not intent. A misconfigured rule can block legitimate traffic or let malicious traffic through."
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "id": "net-002-ip-addresses",
+  "chapter": 1,
+  "module": "net",
+  "title": "IP addresses",
+  "hook": "For your request to reach the right server out of billions, every device needs its own address.",
+  "nodes": [
+    { "id": "client", "label": "You\n192.168.1.42", "kind": "client", "lane": 0 },
+    { "id": "router", "label": "Router", "kind": "router", "lane": 0 },
+    { "id": "server", "label": "Server\n93.184.216.34", "kind": "server", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Your request is addressed to a specific IP — a number, not a name.",
+      "packets": [
+        { "id": "p1", "from": "client", "to": "router", "variant": "request", "outcome": "pass", "label": "to 93.184.216.34" }
+      ],
+      "nodeCaptions": {
+        "client": "Your device has its own address on the local network — that's the 192.168.x.x number.",
+        "router": "The router looks at the destination address and forwards the packet toward it."
+      }
+    },
+    {
+      "caption": "The router hands it off, hop by hop, until it reaches the address it's looking for.",
+      "packets": [
+        { "id": "p2", "from": "router", "to": "server", "variant": "request", "outcome": "pass", "label": "to 93.184.216.34" }
+      ],
+      "nodeCaptions": {
+        "server": "This server's IP address is fixed and public — it's how the whole internet finds it."
+      }
+    }
+  ],
+  "takeaways": [
+    "An IP address is a number, like a street address, not a name — that's what makes it routable.",
+    "Your device's local address (192.168.x.x) and a public server's address are both IPs, just on different networks.",
+    "Every hop between you and a server forwards your packet based on nothing but that destination number."
+  ],
+  "quiz": [
+    {
+      "question": "Why does a packet need a destination IP address instead of just a name like \"the server\"?",
+      "choices": [
+        "Names take up more storage than numbers",
+        "Routers forward packets based on a numeric address they can look up quickly, not on human-readable names",
+        "IP addresses are more secure than names",
+        "It's a legacy requirement with no real reason today"
+      ],
+      "correctIndex": 1,
+      "explanation": "Routing hardware is built to match and forward numeric addresses fast — names are a convenience layer on top, which is exactly what DNS provides."
+    }
+  ]
+}
