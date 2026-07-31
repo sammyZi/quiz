@@ -1,15 +1,20 @@
 import type { ImageSourcePropType } from 'react-native';
 
+export type NodeArtClip = {
+  frames: ImageSourcePropType[];
+};
+
 /**
- * Bundled node art — keep files tiny (≈384px WebP).
- * Do not ship full-res AI PNGs; resize before commit.
- * Later chapters: prefer reusing these keys, or load remote URIs.
+ * Bundled node art — stills or short frame loops (WebP, ≈384px).
+ * Keep under ~40KB per node when possible.
  */
-export const nodeArt: Record<string, ImageSourcePropType> = {
-  ice: require('../../assets/nodes/node-ice.webp'),
-  water: require('../../assets/nodes/node-water.webp'),
-  steam: require('../../assets/nodes/node-steam.webp'),
-  mix: require('../../assets/nodes/node-mix.webp'),
-  filter: require('../../assets/nodes/node-filter.webp'),
-  apart: require('../../assets/nodes/node-apart.webp'),
+export const nodeArt: Record<string, NodeArtClip> = {
+  ice: { frames: [require('../../assets/nodes/node-ice.webp')] },
+  water: { frames: [require('../../assets/nodes/node-water.webp')] },
+  steam: { frames: [require('../../assets/nodes/node-steam.webp')] },
+  heat: { frames: [require('../../assets/nodes/node-heat.webp')] },
+  cool: { frames: [require('../../assets/nodes/node-cool.webp')] },
+  mix: { frames: [require('../../assets/nodes/node-mix.webp')] },
+  filter: { frames: [require('../../assets/nodes/node-filter.webp')] },
+  apart: { frames: [require('../../assets/nodes/node-apart.webp')] },
 };

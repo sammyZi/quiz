@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, StyleSheet, Text, View } from 'react-native';
 import type { NodeKind } from '../lib/lesson.schema';
 import { nodeArt } from '../lib/nodeArt';
 import { theme } from '../theme/theme';
@@ -19,6 +19,7 @@ import {
   StackIcon,
   TextIcon,
 } from './HardwareIcons';
+import { NodeFrameLoop } from './NodeFrameLoop';
 
 type NodeShapeProps = {
   kind: NodeKind;
@@ -319,11 +320,11 @@ function ArtNodeCard({
       ]}
     >
       <View style={styles.artImageWrap}>
-        <Image
-          source={nodeArt[icon]}
+        <NodeFrameLoop
+          frames={nodeArt[icon]?.frames ?? []}
+          playing={!dimmed}
+          fps={7}
           style={styles.artImage}
-          resizeMode="cover"
-          accessibilityIgnoresInvertColors
         />
       </View>
       <View style={[styles.artCaption, dimmed && styles.artCaptionDim]}>

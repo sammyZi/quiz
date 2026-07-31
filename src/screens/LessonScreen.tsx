@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../components/AppHeader';
 import { BrutalButton } from '../components/BrutalButton';
 import { DonePopup } from '../components/DonePopup';
+import { MorphFlow } from '../components/MorphFlow';
 import { PacketFlow } from '../components/PacketFlow';
 import { QuizCard } from '../components/QuizCard';
 import { getLesson, lessons } from '../lib/loadLessons';
@@ -137,7 +138,11 @@ export function LessonScreen() {
         {phase === 'watch' ? (
           <>
             <Text style={styles.hook}>{lesson.hook}</Text>
-            <PacketFlow lesson={lesson} stepIndex={stepIndex} />
+            {lesson.diagram === 'morph' ? (
+              <MorphFlow lesson={lesson} stepIndex={stepIndex} />
+            ) : (
+              <PacketFlow lesson={lesson} stepIndex={stepIndex} />
+            )}
           </>
         ) : null}
 
