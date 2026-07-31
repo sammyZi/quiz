@@ -1,0 +1,105 @@
+{
+  "chapter": 3,
+  "id": "matter-002-mix-and-separate",
+  "module": "matter",
+  "title": "Mix and separate",
+  "hook": "Sand and water can mix in a bowl. A filter can pull them apart again.",
+  "nodes": [
+    { "id": "mix", "label": "Mix", "kind": "generic", "lane": 0 },
+    { "id": "filter", "label": "Filter", "kind": "generic", "lane": 0 },
+    { "id": "apart", "label": "Apart", "kind": "generic", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Stir sand and water together. Now they look like one muddy mix.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "mix",
+          "to": "filter",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "pour"
+        }
+      ],
+      "nodeCaptions": {
+        "mix": "Sand bits and water are all swirled together.",
+        "filter": "We will pour the mix into a filter next."
+      }
+    },
+    {
+      "caption": "The filter lets water through. The sand stays behind.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "filter",
+          "to": "apart",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "sort"
+        }
+      ],
+      "nodeCaptions": {
+        "filter": "Tiny holes let water drip. Sand is too big to pass.",
+        "apart": "Now sand and water are in two places again."
+      }
+    },
+    {
+      "caption": "Mixing puts things together. Filtering can pull them apart.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "apart",
+          "to": "mix",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "stir again"
+        }
+      ],
+      "nodeCaptions": {
+        "apart": "Sand in one pile. Water in another.",
+        "mix": "You can mix them again any time you want."
+      }
+    }
+  ],
+  "takeaways": [
+    "A mix is when two things are stirred together.",
+    "A filter can separate some mixes — water goes through, sand stays.",
+    "Mixing and separating are opposite ideas."
+  ],
+  "quiz": [
+    {
+      "question": "What does a filter do to sandy water?",
+      "choices": [
+        "Makes it colder",
+        "Lets water through and keeps the sand",
+        "Turns it into steam",
+        "Hides it in a box"
+      ],
+      "correctIndex": 1,
+      "explanation": "The filter sorts them — water drips, sand stays."
+    },
+    {
+      "question": "When sand and water are stirred in a bowl, they are…",
+      "choices": [
+        "A mix",
+        "Only ice",
+        "A magnet",
+        "A computer"
+      ],
+      "correctIndex": 0,
+      "explanation": "Stirred together means they made a mix."
+    },
+    {
+      "question": "Mixing and separating are…",
+      "choices": [
+        "The same thing",
+        "Opposite ideas",
+        "Only for space rocks",
+        "Only done at night"
+      ],
+      "correctIndex": 1,
+      "explanation": "Mix puts things together. Separate pulls them apart."
+    }
+  ]
+}

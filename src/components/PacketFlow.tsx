@@ -231,16 +231,16 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
   const layoutW = widthRef.current || width;
   const nodeW = artLayout
     ? layoutW > 0
-      ? Math.max(88, Math.floor((layoutW - ART_GAP * (cols + 1)) / cols))
+      ? Math.max(108, Math.floor((layoutW - ART_GAP * (cols - 1) - 16) / cols))
       : ART_NODE_W
     : NODE_W;
-  const nodeH = artLayout ? Math.round(nodeW * 1.55) : NODE_H;
-  const rowH = artLayout ? nodeH + 28 : ROW_H;
+  const nodeH = artLayout ? Math.round(nodeW * 1.34) : NODE_H;
+  const rowH = artLayout ? nodeH + 20 : ROW_H;
   // Fixed stage geometry — taller for art, but same on every step.
   const stageH = artLayout
-    ? Math.max(rows * rowH + 24, Math.round(windowH * 0.36))
+    ? Math.max(rows * rowH + 16, Math.round(windowH * 0.4))
     : rows * rowH;
-  const artOffsetY = artLayout ? 12 : 0;
+  const artOffsetY = artLayout ? 8 : 0;
   const tree = isTreeLayout(placed, rows, lesson.diagram);
   const pipeline =
     !tree &&

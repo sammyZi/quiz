@@ -46,14 +46,19 @@ type IconKey =
   | 'code'
   | 'ice'
   | 'water'
-  | 'steam';
+  | 'steam'
+  | 'mix'
+  | 'filter'
+  | 'apart';
 
-const ART_ICONS = new Set<IconKey>(['ice', 'water', 'steam']);
+type ArtIconKey = 'ice' | 'water' | 'steam' | 'mix' | 'filter' | 'apart';
+
+const ART_ICONS = new Set<IconKey>(['ice', 'water', 'steam', 'mix', 'filter', 'apart']);
 
 /** Fallback art card size; PacketFlow overrides from stage width. */
-export const ART_NODE_W = 108;
-export const ART_NODE_H = 156;
-export const ART_GAP = 16;
+export const ART_NODE_W = 120;
+export const ART_NODE_H = 188;
+export const ART_GAP = 10;
 
 export function usesArtNode(nodeId?: string, label?: string): boolean {
   const id = (nodeId ?? '').toLowerCase();
@@ -62,9 +67,15 @@ export function usesArtNode(nodeId?: string, label?: string): boolean {
     id === 'ice' ||
     id === 'water' ||
     id === 'steam' ||
+    id === 'mix' ||
+    id === 'filter' ||
+    id === 'apart' ||
     /\bice\b/.test(key) ||
     /\bwater\b/.test(key) ||
-    /\bsteam\b/.test(key)
+    /\bsteam\b/.test(key) ||
+    /\bmix\b/.test(key) ||
+    /\bfilter\b/.test(key) ||
+    /\bapart\b/.test(key)
   );
 }
 
@@ -83,9 +94,12 @@ const ICON_ROLE: Partial<Record<IconKey, string>> = {
   stack: 'short notes',
   heap: 'longer storage',
   code: 'your program',
-  ice: 'frozen hard',
-  water: 'can pour',
-  steam: 'in the air',
+  ice: 'solid',
+  water: 'liquid',
+  steam: 'gas',
+  mix: 'together',
+  filter: 'sorts',
+  apart: 'split',
 };
 
 const ICON_FILL: Partial<Record<IconKey, string>> = {
@@ -106,6 +120,9 @@ const ICON_FILL: Partial<Record<IconKey, string>> = {
   ice: theme.light.tint.sky,
   water: theme.light.tint.mint,
   steam: theme.light.tint.cream,
+  mix: theme.light.tint.peach,
+  filter: theme.light.tint.sun,
+  apart: theme.light.tint.lilac,
 };
 
 const KIND_FILL: Partial<Record<NodeKind, string>> = {
@@ -136,6 +153,9 @@ function resolveIcon(label: string, nodeId?: string): IconKey | null {
   if (id === 'ice' || /\bice\b/.test(key)) return 'ice';
   if (id === 'water' || /\bwater\b/.test(key)) return 'water';
   if (id === 'steam' || /\bsteam\b/.test(key)) return 'steam';
+  if (id === 'mix' || /\bmix\b/.test(key)) return 'mix';
+  if (id === 'filter' || /\bfilter\b/.test(key)) return 'filter';
+  if (id === 'apart' || /\bapart\b/.test(key)) return 'apart';
 
   if (/\b(cpu|processor)\b/.test(key)) return 'cpu';
   if (/\b(ram)\b/.test(key)) return 'ram';
@@ -232,7 +252,7 @@ function ArtNodeCard({
   active,
   cardSize,
 }: {
-  icon: 'ice' | 'water' | 'steam';
+  icon: ArtIconKey;
   label: string;
   role: string | null;
   selected?: boolean;
@@ -307,16 +327,16 @@ function ArtNodeCard({
         />
       </View>
       <View style={[styles.artCaption, dimmed && styles.artCaptionDim]}>
-        <Text
-          style={styles.artLabel}
-          numberOfLines={1}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
-        >
+        <Text style={styles.artLabel} numberOfLines={1}>
           {label}
         </Text>
         {role ? (
-          <Text style={styles.artRole} numberOfLines={1}>
+          <Text
+            style={styles.artRole}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}
+          >
             {role}
           </Text>
         ) : null}
@@ -340,7 +360,7 @@ export function NodeShape({
   if (icon && ART_ICONS.has(icon)) {
     return (
       <ArtNodeCard
-        icon={icon as 'ice' | 'water' | 'steam'}
+        icon={icon as ArtIconKey}
         label={label}
         role={role}
         selected={selected}
@@ -407,13 +427,13 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     borderWidth: 2.5,
     overflow: 'hidden',
-    backgroundColor: theme.light.surface,
+    backgroundColor: '#FFFCF5',
   },
   artImageWrap: {
     flex: 1,
     width: '100%',
     minHeight: 0,
-    backgroundColor: theme.light.tint.sky,
+    overflow: 'hidden',
   },
   artImage: {
     width: '100%',
@@ -422,29 +442,29 @@ const styles = StyleSheet.create({
   artCaption: {
     flexShrink: 0,
     width: '100%',
-    paddingHorizontal: 6,
-    paddingTop: 6,
-    paddingBottom: 7,
-    backgroundColor: 'rgba(255,252,245,0.96)',
+    paddingHorizontal: 4,
+    paddingTop: 4,
+    paddingBottom: 5,
+    backgroundColor: 'rgba(255,252,245,0.98)',
     borderTopWidth: 1.5,
-    borderTopColor: 'rgba(45,38,64,0.12)',
+    borderTopColor: 'rgba(45,38,64,0.1)',
     alignItems: 'center',
-    gap: 1,
+    gap: 0,
   },
   artCaptionDim: {
-    backgroundColor: 'rgba(255,252,245,0.82)',
+    opacity: 0.9,
   },
   artLabel: {
     width: '100%',
     fontFamily: theme.font.display,
-    fontSize: 13,
+    fontSize: 14,
     color: theme.light.ink,
     textAlign: 'center',
   },
   artRole: {
     width: '100%',
     fontFamily: theme.font.mono,
-    fontSize: 9,
+    fontSize: 10,
     color: theme.light.muted,
     textAlign: 'center',
   },

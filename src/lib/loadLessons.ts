@@ -2,6 +2,7 @@ import { validateLesson, type Lesson } from './lesson.schema';
 
 // Metro bundles JSON via static import — one line per lesson file.
 import matter001 from '../../lessons/matter-001-ice-water-steam.json';
+import matter002 from '../../lessons/matter-002-mix-and-separate.json';
 import cpu001 from '../../lessons/cpu-001-cpu-memory-storage.json';
 import cpu002 from '../../lessons/cpu-002-binary-data.json';
 import cpu003 from '../../lessons/cpu-003-fetch-decode-execute.json';
@@ -38,6 +39,7 @@ import net015 from '../../lessons/net-015-scaling.json';
 
 const rawLessons: unknown[] = [
   matter001,
+  matter002,
   cpu001, cpu002, cpu003, cpu004,
   ds001, ds002, ds003, ds004, ds005,
   algo001, algo002, algo003, algo004,
