@@ -1,5 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useRef } from 'react';
+import { Animated, Easing, Image, StyleSheet, Text, View } from 'react-native';
 import type { NodeKind } from '../lib/lesson.schema';
+import { nodeArt } from '../lib/nodeArt';
 import { theme } from '../theme/theme';
 import {
   ByteIcon,
@@ -24,6 +26,7 @@ type NodeShapeProps = {
   nodeId?: string;
   selected?: boolean;
   active?: boolean;
+  cardSize?: { width: number; height: number };
 };
 
 type IconKey =
@@ -40,7 +43,30 @@ type IconKey =
   | 'execute'
   | 'stack'
   | 'heap'
-  | 'code';
+  | 'code'
+  | 'ice'
+  | 'water'
+  | 'steam';
+
+const ART_ICONS = new Set<IconKey>(['ice', 'water', 'steam']);
+
+/** Fallback art card size; PacketFlow overrides from stage width. */
+export const ART_NODE_W = 108;
+export const ART_NODE_H = 156;
+export const ART_GAP = 16;
+
+export function usesArtNode(nodeId?: string, label?: string): boolean {
+  const id = (nodeId ?? '').toLowerCase();
+  const key = `${id} ${label ?? ''}`.toLowerCase();
+  return (
+    id === 'ice' ||
+    id === 'water' ||
+    id === 'steam' ||
+    /\bice\b/.test(key) ||
+    /\bwater\b/.test(key) ||
+    /\bsteam\b/.test(key)
+  );
+}
 
 const ICON_ROLE: Partial<Record<IconKey, string>> = {
   cpu: 'does work',
@@ -57,6 +83,9 @@ const ICON_ROLE: Partial<Record<IconKey, string>> = {
   stack: 'short notes',
   heap: 'longer storage',
   code: 'your program',
+  ice: 'frozen hard',
+  water: 'can pour',
+  steam: 'in the air',
 };
 
 const ICON_FILL: Partial<Record<IconKey, string>> = {
@@ -74,6 +103,9 @@ const ICON_FILL: Partial<Record<IconKey, string>> = {
   stack: theme.light.tint.sun,
   heap: theme.light.tint.peach,
   code: theme.light.tint.sky,
+  ice: theme.light.tint.sky,
+  water: theme.light.tint.mint,
+  steam: theme.light.tint.cream,
 };
 
 const KIND_FILL: Partial<Record<NodeKind, string>> = {
@@ -101,6 +133,9 @@ function resolveIcon(label: string, nodeId?: string): IconKey | null {
   if (id === 'stack' || /\bstack\b/.test(key)) return 'stack';
   if (id === 'heap' || /\bheap\b/.test(key)) return 'heap';
   if (id === 'code' || /\byour code\b/.test(key)) return 'code';
+  if (id === 'ice' || /\bice\b/.test(key)) return 'ice';
+  if (id === 'water' || /\bwater\b/.test(key)) return 'water';
+  if (id === 'steam' || /\bsteam\b/.test(key)) return 'steam';
 
   if (/\b(cpu|processor)\b/.test(key)) return 'cpu';
   if (/\b(ram)\b/.test(key)) return 'ram';
@@ -128,7 +163,6 @@ function Device({ kind, label, nodeId }: { kind: NodeKind; label: string; nodeId
   if (icon === 'stack') return <StackIcon size={34} />;
   if (icon === 'heap') return <HeapIcon size={34} />;
   if (icon === 'code') return <CodeIcon size={34} />;
-
   if (kind === 'client') {
     return (
       <View style={device.phone}>
@@ -190,10 +224,131 @@ function Device({ kind, label, nodeId }: { kind: NodeKind; label: string; nodeId
   return <View style={device.generic} />;
 }
 
-export function NodeShape({ kind, label, nodeId, selected, active }: NodeShapeProps) {
+function ArtNodeCard({
+  icon,
+  label,
+  role,
+  selected,
+  active,
+  cardSize,
+}: {
+  icon: 'ice' | 'water' | 'steam';
+  label: string;
+  role: string | null;
+  selected?: boolean;
+  active?: boolean;
+  cardSize?: { width: number; height: number };
+}) {
+  const dimmed = !active && !selected;
+  const bob = useRef(new Animated.Value(0)).current;
+  const scale = useRef(new Animated.Value(1)).current;
+  const w = cardSize?.width ?? ART_NODE_W;
+  const h = cardSize?.height ?? ART_NODE_H;
+
+  useEffect(() => {
+    if (!active && !selected) {
+      bob.setValue(0);
+      Animated.spring(scale, {
+        toValue: 1,
+        friction: 8,
+        tension: 80,
+        useNativeDriver: true,
+      }).start();
+      return;
+    }
+
+    Animated.spring(scale, {
+      toValue: selected ? 1.03 : 1,
+      friction: 7,
+      tension: 90,
+      useNativeDriver: true,
+    }).start();
+
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(bob, {
+          toValue: -4,
+          duration: 1000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+        Animated.timing(bob, {
+          toValue: 0,
+          duration: 1000,
+          easing: Easing.inOut(Easing.sin),
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [active, selected, bob, scale]);
+
+  return (
+    <Animated.View
+      style={[
+        styles.artCard,
+        { width: w, height: h },
+        !dimmed && theme.clay.soft,
+        dimmed ? styles.inactive : styles.active,
+        selected && styles.selected,
+        {
+          transform: [{ translateY: bob }, { scale }],
+          opacity: dimmed ? 0.72 : 1,
+        },
+      ]}
+    >
+      <View style={styles.artImageWrap}>
+        <Image
+          source={nodeArt[icon]}
+          style={styles.artImage}
+          resizeMode="cover"
+          accessibilityIgnoresInvertColors
+        />
+      </View>
+      <View style={[styles.artCaption, dimmed && styles.artCaptionDim]}>
+        <Text
+          style={styles.artLabel}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
+          {label}
+        </Text>
+        {role ? (
+          <Text style={styles.artRole} numberOfLines={1}>
+            {role}
+          </Text>
+        ) : null}
+      </View>
+    </Animated.View>
+  );
+}
+
+export function NodeShape({
+  kind,
+  label,
+  nodeId,
+  selected,
+  active,
+  cardSize,
+}: NodeShapeProps) {
   const icon = resolveIcon(label, nodeId);
   const role = icon ? (ICON_ROLE[icon] ?? null) : null;
   const dimmed = !active && !selected;
+
+  if (icon && ART_ICONS.has(icon)) {
+    return (
+      <ArtNodeCard
+        icon={icon as 'ice' | 'water' | 'steam'}
+        label={label}
+        role={role}
+        selected={selected}
+        active={active}
+        cardSize={cardSize}
+      />
+    );
+  }
 
   const activeFill =
     (icon && ICON_FILL[icon]) || KIND_FILL[kind] || theme.light.tint.sun;
@@ -248,6 +403,51 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     gap: 2,
   },
+  artCard: {
+    borderRadius: 22,
+    borderWidth: 2.5,
+    overflow: 'hidden',
+    backgroundColor: theme.light.surface,
+  },
+  artImageWrap: {
+    flex: 1,
+    width: '100%',
+    minHeight: 0,
+    backgroundColor: theme.light.tint.sky,
+  },
+  artImage: {
+    width: '100%',
+    height: '100%',
+  },
+  artCaption: {
+    flexShrink: 0,
+    width: '100%',
+    paddingHorizontal: 6,
+    paddingTop: 6,
+    paddingBottom: 7,
+    backgroundColor: 'rgba(255,252,245,0.96)',
+    borderTopWidth: 1.5,
+    borderTopColor: 'rgba(45,38,64,0.12)',
+    alignItems: 'center',
+    gap: 1,
+  },
+  artCaptionDim: {
+    backgroundColor: 'rgba(255,252,245,0.82)',
+  },
+  artLabel: {
+    width: '100%',
+    fontFamily: theme.font.display,
+    fontSize: 13,
+    color: theme.light.ink,
+    textAlign: 'center',
+  },
+  artRole: {
+    width: '100%',
+    fontFamily: theme.font.mono,
+    fontSize: 9,
+    color: theme.light.muted,
+    textAlign: 'center',
+  },
   active: {
     borderColor: theme.light.ink,
   },
@@ -257,7 +457,6 @@ const styles = StyleSheet.create({
   selected: {
     borderColor: theme.light.ink,
     borderWidth: 2.5,
-    backgroundColor: theme.light.tint.lilac,
   },
   dimIcon: {
     opacity: 0.55,

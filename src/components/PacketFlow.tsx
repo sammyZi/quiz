@@ -1,8 +1,22 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Animated,
+  Easing,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import type { Lesson, LessonNode, Packet } from '../lib/lesson.schema';
 import { theme } from '../theme/theme';
-import { NodeShape } from './NodeShape';
+import {
+  ART_GAP,
+  ART_NODE_H,
+  ART_NODE_W,
+  NodeShape,
+  usesArtNode,
+} from './NodeShape';
 
 const NODE_W = 96;
 const NODE_H = 100;
@@ -202,11 +216,31 @@ function TreeWires({
 
 export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: number }) {
   const [width, setWidth] = useState(0);
+  const widthRef = useRef(0);
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [replayKey, setReplayKey] = useState(0);
+  const { height: windowH } = useWindowDimensions();
 
   const step = lesson.steps[stepIndex];
   const { placed, rows, cols } = useMemo(() => placeNodes(lesson.nodes), [lesson.nodes]);
+  const artLayout = useMemo(
+    () => lesson.nodes.some((n) => usesArtNode(n.id, n.label)),
+    [lesson.nodes],
+  );
+  // Lock measured width so step changes never resize the cards.
+  const layoutW = widthRef.current || width;
+  const nodeW = artLayout
+    ? layoutW > 0
+      ? Math.max(88, Math.floor((layoutW - ART_GAP * (cols + 1)) / cols))
+      : ART_NODE_W
+    : NODE_W;
+  const nodeH = artLayout ? Math.round(nodeW * 1.55) : NODE_H;
+  const rowH = artLayout ? nodeH + 28 : ROW_H;
+  // Fixed stage geometry — taller for art, but same on every step.
+  const stageH = artLayout
+    ? Math.max(rows * rowH + 24, Math.round(windowH * 0.36))
+    : rows * rowH;
+  const artOffsetY = artLayout ? 12 : 0;
   const tree = isTreeLayout(placed, rows, lesson.diagram);
   const pipeline =
     !tree &&
@@ -219,17 +253,25 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
     setReplayKey((k) => k + 1);
   }, [stepIndex]);
 
-  const colWidth = width / Math.max(cols, 1);
-  const centreOf = (node: Placed): Point => ({
-    x: colWidth * (node.col + 0.5),
-    y: ROW_H * (node.row + 0.5),
-  });
+  const colWidth = layoutW / Math.max(cols, 1);
+  const artSpan = cols * nodeW + (cols - 1) * ART_GAP;
+  const artOriginX = (layoutW - artSpan) / 2;
+  const centreOf = (node: Placed): Point =>
+    artLayout
+      ? {
+          x: artOriginX + node.col * (nodeW + ART_GAP) + nodeW / 2,
+          y: artOffsetY + rowH * (node.row + 0.5),
+        }
+      : {
+          x: colWidth * (node.col + 0.5),
+          y: rowH * (node.row + 0.5),
+        };
 
   const edgePath = (from: Placed, to: Placed): { start: Point; end: Point } => {
     const a = centreOf(from);
     const b = centreOf(to);
     const gap = 4;
-    const half = NODE_W / 2;
+    const half = nodeW / 2;
     if (Math.abs(b.x - a.x) >= Math.abs(b.y - a.y)) {
       const rightward = b.x >= a.x;
       return {
@@ -238,7 +280,7 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
       };
     }
     const downward = b.y >= a.y;
-    const vHalf = NODE_H / 2;
+    const vHalf = nodeH / 2;
     return {
       start: { x: a.x, y: a.y + (downward ? vHalf + gap : -(vHalf + gap)) },
       end: { x: b.x, y: b.y + (downward ? -(vHalf + gap) : vHalf + gap) },
@@ -275,36 +317,55 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
 
   return (
     <View>
-      <Text style={styles.story}>{story}</Text>
+      <View style={styles.storySlot}>
+        <Text style={styles.story} numberOfLines={3}>
+          {story}
+        </Text>
+      </View>
 
       <View
-        style={[styles.stage, { height: rows * ROW_H }]}
-        onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
+        style={[styles.stage, { height: stageH }]}
+        onLayout={(e) => {
+          const w = e.nativeEvent.layout.width;
+          if (w > 0 && w !== widthRef.current) {
+            widthRef.current = w;
+            setWidth(w);
+          }
+        }}
       >
-        {width > 0 && tree && root ? (
+        {layoutW > 0 && tree && root ? (
           <TreeWires root={root} leaves={leaves} centreOf={centreOf} />
         ) : null}
 
-        {width > 0 && pipeline && root && leaves[0] ? (
+        {layoutW > 0 && pipeline && root && leaves[0] ? (
           <PipelineStem root={root} firstLeaf={leaves[0]} centreOf={centreOf} />
         ) : null}
 
-        {width > 0 &&
+        {layoutW > 0 &&
           !tree &&
           Array.from({ length: rows }, (_, row) => {
             const inRow = placed.filter((n) => n.row === row);
             if (inRow.length < 2) return null;
-            const left = colWidth * (Math.min(...inRow.map((n) => n.col)) + 0.5);
-            const right = colWidth * (Math.max(...inRow.map((n) => n.col)) + 0.5);
+            const leftN = inRow.reduce((a, b) => (a.col < b.col ? a : b));
+            const rightN = inRow.reduce((a, b) => (a.col > b.col ? a : b));
+            const left = centreOf(leftN).x;
+            const right = centreOf(rightN).x;
             return (
               <View
                 key={`wire-${row}`}
-                style={[styles.wire, { top: ROW_H * (row + 0.5) - 1, left, width: right - left }]}
+                style={[
+                  styles.wire,
+                  {
+                    top: artOffsetY + rowH * (row + 0.5) - 1,
+                    left,
+                    width: right - left,
+                  },
+                ]}
               />
             );
           })}
 
-        {width > 0 &&
+        {layoutW > 0 &&
           placed.map((node) => {
             const centre = centreOf(node);
             const active = activeIds.has(node.id);
@@ -317,8 +378,10 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
                 style={[
                   styles.nodeWrap,
                   {
-                    left: centre.x - NODE_W / 2,
-                    top: centre.y - NODE_H / 2,
+                    width: nodeW,
+                    height: nodeH,
+                    left: centre.x - nodeW / 2,
+                    top: centre.y - nodeH / 2,
                   },
                 ]}
               >
@@ -328,12 +391,13 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
                   nodeId={node.id}
                   selected={selectedNode === node.id}
                   active={active || selectedNode === node.id}
+                  cardSize={artLayout ? { width: nodeW, height: nodeH } : undefined}
                 />
               </Pressable>
             );
           })}
 
-        {width > 0 &&
+        {layoutW > 0 &&
           step.packets.map((packet, index) => {
             const from = byId(packet.from);
             const target = byId(
@@ -357,7 +421,9 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
       </View>
 
       <View style={styles.footerRow}>
-        {!selectedNode ? <Text style={styles.oneLine}>{oneLine}</Text> : <View />}
+        <Text style={[styles.oneLine, selectedNode && styles.oneLineHidden]} numberOfLines={1}>
+          {oneLine}
+        </Text>
         <Pressable onPress={() => setReplayKey((k) => k + 1)} hitSlop={8}>
           <Text style={styles.replay}>Replay</Text>
         </Pressable>
@@ -367,12 +433,16 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
 }
 
 const styles = StyleSheet.create({
+  storySlot: {
+    minHeight: 26 * 3,
+    marginBottom: theme.spacing.md,
+    justifyContent: 'flex-start',
+  },
   story: {
     fontFamily: theme.font.body,
     fontSize: 17,
     color: theme.light.ink,
     lineHeight: 26,
-    marginBottom: theme.spacing.md,
   },
   stage: {
     position: 'relative',
@@ -401,8 +471,6 @@ const styles = StyleSheet.create({
   },
   nodeWrap: {
     position: 'absolute',
-    width: NODE_W,
-    height: NODE_H,
   },
   packet: {
     position: 'absolute',
@@ -431,6 +499,9 @@ const styles = StyleSheet.create({
     fontFamily: theme.font.display,
     fontSize: 15,
     color: theme.light.ink,
+  },
+  oneLineHidden: {
+    opacity: 0,
   },
   replay: {
     fontFamily: theme.font.body,

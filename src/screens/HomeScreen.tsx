@@ -111,6 +111,11 @@ export function HomeScreen() {
               color={theme.light.tint.sun}
               onPress={() => openLesson(next.id)}
             />
+            <BrutalButton
+              label="All science topics"
+              color={theme.light.tint.mint}
+              onPress={() => navigation.navigate('Subject', { chapter: 3 })}
+            />
           </View>
         </BrutalCard>
 
@@ -135,13 +140,13 @@ export function HomeScreen() {
           <BrutalCard fill={theme.light.tint.lilac}>
             <Text style={styles.heroTitle}>Science track clear</Text>
             <Text style={styles.heroHook}>
-              Nice! More science lessons are coming. Peek at Computers in the Lessons tab anytime.
+              Nice! More science lessons are coming. Open Subjects anytime for more.
             </Text>
             <View style={styles.heroCta}>
               <BrutalButton
-                label="Browse curriculum"
+                label="Open Science"
                 color={theme.light.tint.sun}
-                onPress={() => navigation.navigate('Lessons')}
+                onPress={() => navigation.navigate('Subject', { chapter: 3 })}
               />
             </View>
           </BrutalCard>

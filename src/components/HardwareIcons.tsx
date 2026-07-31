@@ -273,3 +273,4 @@ export function CodeIcon({ size = 40 }: IconProps) {
     </Svg>
   );
 }
+

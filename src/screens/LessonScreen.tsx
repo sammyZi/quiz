@@ -136,7 +136,7 @@ export function LessonScreen() {
       >
         {phase === 'watch' ? (
           <>
-            {stepIndex === 0 ? <Text style={styles.hook}>{lesson.hook}</Text> : null}
+            <Text style={styles.hook}>{lesson.hook}</Text>
             <PacketFlow lesson={lesson} stepIndex={stepIndex} />
           </>
         ) : null}
