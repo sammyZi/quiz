@@ -1,0 +1,98 @@
+{
+  "chapter": 1,
+  "id": "os-003-concurrency-race-conditions",
+  "module": "os",
+  "title": "Concurrency & race conditions",
+  "hook": "Two threads can both read a value, both add one, and both write — and you lose an update.",
+  "nodes": [
+    {
+      "id": "mem",
+      "label": "count=0",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "t1",
+      "label": "Thread A",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "t2",
+      "label": "Thread B",
+      "kind": "generic",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Both threads read count as 0 before either writes back.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "mem",
+          "to": "t1",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "read 0"
+        },
+        {
+          "id": "p2",
+          "from": "mem",
+          "to": "t2",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "read 0"
+        }
+      ],
+      "nodeCaptions": {
+        "mem": "Shared variable. No lock yet.",
+        "t1": "Thinks “I’ll write 1.”",
+        "t2": "Also thinks “I’ll write 1.”"
+      }
+    },
+    {
+      "caption": "A writes 1, then B writes 1 — second write wins. One increment vanished.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "t1",
+          "to": "mem",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "write 1"
+        },
+        {
+          "id": "p4",
+          "from": "t2",
+          "to": "mem",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "write 1"
+        }
+      ],
+      "nodeCaptions": {
+        "mem": "Final value 1, not 2. Timing decided correctness.",
+        "t2": "Locks, atomics, or queues prevent this interleaving."
+      }
+    }
+  ],
+  "takeaways": [
+    "A race is when result depends on unpredictable timing of shared access.",
+    "Read-modify-write without synchronization is a classic bug pattern.",
+    "Fix with mutual exclusion or lock-free atomics designed for the job."
+  ],
+  "quiz": [
+    {
+      "question": "In the lost-update race, why did count stay 1 after two increments?",
+      "choices": [
+        "Addition is illegal on shared memory",
+        "Both threads based their write on the same old read",
+        "The CPU rejects the second write always",
+        "Threads can’t write memory"
+      ],
+      "correctIndex": 1,
+      "explanation": "Both computed 0+1; the later write overwrote the earlier one."
+    }
+  ]
+}

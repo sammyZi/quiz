@@ -1,21 +1,27 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { HomeScreen } from '../screens/HomeScreen';
+import { Onboarding } from '../components/Onboarding';
+import { ProgressProvider } from '../lib/progress';
+import { LessonScreen } from '../screens/LessonScreen';
+import { TabNavigator } from './TabNavigator';
 
-// Placeholder param list — grows as LessonScreen, QuizScreen, PaywallScreen
-// etc. are built out in their own tasks.
 export type RootStackParamList = {
-  Home: undefined;
+  Tabs: undefined;
+  Lesson: { lessonId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export function RootNavigator() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="Home" component={HomeScreen} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <ProgressProvider>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="Tabs" component={TabNavigator} />
+          <Stack.Screen name="Lesson" component={LessonScreen} />
+        </Stack.Navigator>
+        <Onboarding />
+      </NavigationContainer>
+    </ProgressProvider>
   );
 }

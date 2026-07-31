@@ -1,0 +1,95 @@
+{
+  "chapter": 1,
+  "id": "ds-002-linked-lists",
+  "module": "ds",
+  "title": "Linked lists",
+  "hook": "A linked list doesn’t jump by index — it walks node to node. That’s the trade.",
+  "nodes": [
+    {
+      "id": "head",
+      "label": "Head",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "n1",
+      "label": "Node A",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "n2",
+      "label": "Node B",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "n3",
+      "label": "Node C",
+      "kind": "generic",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Start at the head. Each node only knows the next one.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "head",
+          "to": "n1",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "next"
+        }
+      ],
+      "nodeCaptions": {
+        "head": "The head is just a pointer to the first node.",
+        "n1": "Payload + pointer to the next node. No “slot 2” math."
+      }
+    },
+    {
+      "caption": "To reach C you must walk A → B → C. No skipping.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "n1",
+          "to": "n2",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "next"
+        },
+        {
+          "id": "p3",
+          "from": "n2",
+          "to": "n3",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "next"
+        }
+      ],
+      "nodeCaptions": {
+        "n2": "Inserting after a node is easy: rewire one pointer.",
+        "n3": "Finding the k-th item costs k steps — that’s the downside."
+      }
+    }
+  ],
+  "takeaways": [
+    "Linked lists trade random access for cheap inserts/deletes at a known node.",
+    "You follow pointers; you don’t compute addresses from an index.",
+    "Poor cache locality is why lists often lose to arrays in practice."
+  ],
+  "quiz": [
+    {
+      "question": "What’s the cost of reaching the 50th node in a singly linked list?",
+      "choices": [
+        "Always one jump, like an array",
+        "About 50 pointer hops from the head",
+        "It lives at a fixed disk sector",
+        "Lists don’t have an order"
+      ],
+      "correctIndex": 1,
+      "explanation": "No index math — you walk."
+    }
+  ]
+}

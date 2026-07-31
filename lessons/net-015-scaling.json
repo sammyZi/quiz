@@ -1,0 +1,108 @@
+{
+  "chapter": 1,
+  "id": "net-015-scaling",
+  "module": "net",
+  "title": "Scaling",
+  "hook": "When load grows you can buy a bigger machine — or more identical smaller ones.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "Users",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "big",
+      "label": "One big server",
+      "kind": "server",
+      "lane": 0
+    },
+    {
+      "id": "s1",
+      "label": "Small 1",
+      "kind": "server",
+      "lane": 1
+    },
+    {
+      "id": "s2",
+      "label": "Small 2",
+      "kind": "server",
+      "lane": 1
+    },
+    {
+      "id": "s3",
+      "label": "Small 3",
+      "kind": "server",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Vertical scaling: send everything to one increasingly powerful box.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "big",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "all load"
+        }
+      ],
+      "nodeCaptions": {
+        "big": "Simple mentally. Ceiling: the biggest machine you can rent, and a single point of failure."
+      }
+    },
+    {
+      "caption": "Horizontal scaling: split load across many smaller servers (usually with a balancer).",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "client",
+          "to": "s1",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "share"
+        },
+        {
+          "id": "p3",
+          "from": "client",
+          "to": "s2",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "share"
+        },
+        {
+          "id": "p4",
+          "from": "client",
+          "to": "s3",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "share"
+        }
+      ],
+      "nodeCaptions": {
+        "s1": "Add/remove boxes as traffic changes.",
+        "s2": "Needs the app to handle being one of many (shared nothing / careful state)."
+      }
+    }
+  ],
+  "takeaways": [
+    "Vertical = bigger machine. Horizontal = more machines.",
+    "Horizontal scaling pairs naturally with load balancers.",
+    "State (sessions, uploads) is what makes horizontal hard."
+  ],
+  "quiz": [
+    {
+      "question": "Adding more identical servers behind a balancer is…",
+      "choices": [
+        "Vertical scaling",
+        "Horizontal scaling",
+        "DNS poisoning",
+        "Compiling"
+      ],
+      "correctIndex": 1,
+      "explanation": "Scale out = horizontal. Scale up = vertical."
+    }
+  ]
+}

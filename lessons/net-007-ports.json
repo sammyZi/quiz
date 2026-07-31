@@ -1,0 +1,87 @@
+{
+  "chapter": 1,
+  "id": "net-007-ports",
+  "module": "net",
+  "title": "Ports",
+  "hook": "One IP address is a building. Ports are the doors — 80, 443, 22 lead to different services.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "You",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "p80",
+      "label": ":80 Web",
+      "kind": "server",
+      "lane": 0
+    },
+    {
+      "id": "p443",
+      "label": ":443 TLS",
+      "kind": "server",
+      "lane": 1
+    },
+    {
+      "id": "p22",
+      "label": ":22 SSH",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Same server IP, but your browser knocks on port 443 for HTTPS.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "p443",
+          "variant": "request",
+          "outcome": "pass",
+          "label": ":443"
+        }
+      ],
+      "nodeCaptions": {
+        "client": "The destination is IP + port, not IP alone.",
+        "p443": "A process is listening on 443. Other ports are other programs."
+      }
+    },
+    {
+      "caption": "SSH uses 22 on that same machine. Different door, different service.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "client",
+          "to": "p22",
+          "variant": "control",
+          "outcome": "pass",
+          "label": ":22"
+        }
+      ],
+      "nodeCaptions": {
+        "p22": "Firewalls often allow 443 but block 22 from the public internet.",
+        "p80": "Port 80 is the classic unencrypted HTTP door."
+      }
+    }
+  ],
+  "takeaways": [
+    "IP finds the host; port finds the service on that host.",
+    "Well-known ports are conventions — the OS maps them to listening processes.",
+    "Security often means choosing which doors are open."
+  ],
+  "quiz": [
+    {
+      "question": "Two services on one server — how does traffic reach the right one?",
+      "choices": [
+        "They take turns each minute",
+        "Different port numbers on the same IP",
+        "They must use different IP addresses always",
+        "DNS picks the service name only"
+      ],
+      "correctIndex": 1,
+      "explanation": "Sockets are addressed by IP + port (+ protocol)."
+    }
+  ]
+}

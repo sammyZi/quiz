@@ -1,49 +1,50 @@
-import { View, StyleSheet, ViewProps } from 'react-native';
+import { View, StyleSheet, ViewProps, Platform } from 'react-native';
 import { theme } from '../theme/theme';
 
-// The offset shadow is a solid View behind the card, positioned with
-// top/left offset — never `elevation` and never a blurred shadowColor.
-// Android renders `elevation` as a soft blur, which is both the wrong look
-// and the most expensive thing you can put in a scrolling list of lesson
-// cards. Copy this pattern, don't reinvent it per-component.
-//
-// ponytail: light theme only — dark mode needs the shadow-becomes-accent-color
-// prototype from DESIGN_SYSTEM.md before this component branches on theme.mode.
+// Clay card: plump radius + soft outer shadow + pale top edge (fake inner light).
+// Kept the BrutalCard name so existing screens don't all need a rename pass.
 
 type BrutalCardProps = ViewProps & {
   accentColor?: string;
+  fill?: string;
 };
 
-export function BrutalCard({ style, accentColor, children, ...rest }: BrutalCardProps) {
-  const shadowColor = accentColor ?? theme.light.shadow;
-
+export function BrutalCard({ style, accentColor, fill, children, ...rest }: BrutalCardProps) {
   return (
-    <View style={styles.wrapper}>
-      <View style={[styles.shadow, { backgroundColor: shadowColor }]} />
-      <View style={[styles.card, style]} {...rest}>
-        {children}
-      </View>
+    <View
+      style={[
+        styles.card,
+        theme.clay.out,
+        fill ? { backgroundColor: fill } : null,
+        accentColor ? { borderBottomColor: accentColor, borderBottomWidth: 4 } : null,
+        style,
+      ]}
+      {...rest}
+    >
+      {/* top specular highlight — the “wet clay” rim */}
+      <View style={styles.shine} pointerEvents="none" />
+      {children}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrapper: {
-    position: 'relative',
-  },
-  shadow: {
-    position: 'absolute',
-    top: theme.shadow.offset,
-    left: theme.shadow.offset,
-    right: -theme.shadow.offset,
-    bottom: -theme.shadow.offset,
-    borderRadius: theme.radius.card,
-  },
   card: {
     backgroundColor: theme.light.surface,
     borderRadius: theme.radius.card,
-    borderWidth: 2,
+    borderWidth: Platform.OS === 'ios' ? 1.5 : 1,
     borderColor: theme.light.border,
     padding: theme.spacing.md,
+    overflow: 'hidden',
+  },
+  shine: {
+    position: 'absolute',
+    top: 0,
+    left: 12,
+    right: 12,
+    height: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
+    backgroundColor: 'rgba(255,255,255,0.65)',
   },
 });

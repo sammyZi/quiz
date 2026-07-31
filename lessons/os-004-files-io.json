@@ -1,0 +1,104 @@
+{
+  "chapter": 1,
+  "id": "os-004-files-io",
+  "module": "os",
+  "title": "Files & I/O",
+  "hook": "Your code rarely talks to the disk itself — it asks the OS, and then everyone waits.",
+  "nodes": [
+    {
+      "id": "app",
+      "label": "App",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "os",
+      "label": "OS",
+      "kind": "gateway",
+      "lane": 0
+    },
+    {
+      "id": "disk",
+      "label": "Disk",
+      "kind": "database",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "The app calls read/write. That becomes a system call into the OS.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "app",
+          "to": "os",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "read()"
+        }
+      ],
+      "nodeCaptions": {
+        "app": "User code isn’t allowed to poke device registers directly (on modern OSes).",
+        "os": "The kernel enforces permissions and manages the device."
+      }
+    },
+    {
+      "caption": "The OS talks to the disk. This can take ages compared to RAM.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "os",
+          "to": "disk",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "I/O"
+        }
+      ],
+      "nodeCaptions": {
+        "disk": "Hardware delay dominates. The CPU may run something else meanwhile."
+      }
+    },
+    {
+      "caption": "Data returns through the OS to the app.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "disk",
+          "to": "os",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "bytes"
+        },
+        {
+          "id": "p4",
+          "from": "os",
+          "to": "app",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "buffer"
+        }
+      ],
+      "nodeCaptions": {
+        "app": "From the app’s view it was one read() — the wait was real either way."
+      }
+    }
+  ],
+  "takeaways": [
+    "File I/O is mediated by the OS for safety and abstraction.",
+    "Disk latency is why I/O-bound programs feel different from CPU-bound ones.",
+    "Async I/O and caching exist to hide some of that wait."
+  ],
+  "quiz": [
+    {
+      "question": "Who usually performs the actual disk operation when your app reads a file?",
+      "choices": [
+        "The JavaScript engine alone",
+        "The operating system (kernel), on the app’s behalf",
+        "The monitor",
+        "DNS"
+      ],
+      "correctIndex": 1,
+      "explanation": "System calls hand the request to the kernel, which drives the device."
+    }
+  ]
+}

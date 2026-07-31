@@ -1,0 +1,103 @@
+{
+  "chapter": 1,
+  "id": "build-001-compiled-vs-interpreted",
+  "module": "build",
+  "title": "Compiled vs interpreted",
+  "hook": "Same source file, two paths to running: translate ahead of time, or translate while it runs.",
+  "nodes": [
+    {
+      "id": "src",
+      "label": "Source",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "compiler",
+      "label": "Compiler",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "binary",
+      "label": "Binary",
+      "kind": "server",
+      "lane": 0
+    },
+    {
+      "id": "interp",
+      "label": "Interpreter",
+      "kind": "generic",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Compiled path: source goes through a compiler once and becomes a binary.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "src",
+          "to": "compiler",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "compile"
+        },
+        {
+          "id": "p2",
+          "from": "compiler",
+          "to": "binary",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "exe"
+        }
+      ],
+      "nodeCaptions": {
+        "compiler": "Heavy work happens before the user runs the program.",
+        "binary": "The CPU runs machine code directly (or via a small loader)."
+      }
+    },
+    {
+      "caption": "Interpreted path: an interpreter reads the source (or bytecode) as it executes.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "src",
+          "to": "interp",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "run"
+        },
+        {
+          "id": "p4",
+          "from": "interp",
+          "to": "src",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "next line"
+        }
+      ],
+      "nodeCaptions": {
+        "interp": "Translation cost is paid at runtime, often line by line or via a VM.",
+        "src": "Many modern languages mix both: compile to bytecode, then JIT."
+      }
+    }
+  ],
+  "takeaways": [
+    "Compilation shifts translation cost earlier; interpretation pays as you go.",
+    "Real engines are hybrids — VMs, bytecode, JIT — not pure textbook extremes.",
+    "“Compiled vs interpreted” is about when and how source becomes machine work."
+  ],
+  "quiz": [
+    {
+      "question": "What’s the key timing difference?",
+      "choices": [
+        "Interpreters never touch the source",
+        "Compilers translate before run; interpreters translate during run",
+        "Compiled programs can’t use RAM",
+        "Only interpreters can use loops"
+      ],
+      "correctIndex": 1,
+      "explanation": "When translation happens is the core distinction."
+    }
+  ]
+}

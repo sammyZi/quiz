@@ -1,0 +1,96 @@
+{
+  "chapter": 1,
+  "id": "os-001-processes-vs-threads",
+  "module": "os",
+  "title": "Processes vs threads",
+  "hook": "Processes are isolated programs. Threads are workers that share one process’s memory.",
+  "nodes": [
+    {
+      "id": "p1",
+      "label": "Process A",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "p2",
+      "label": "Process B",
+      "kind": "generic",
+      "lane": 1
+    },
+    {
+      "id": "t1",
+      "label": "Thread 1",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "t2",
+      "label": "Thread 2",
+      "kind": "generic",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Process A and Process B don’t share memory — a bad pointer in A shouldn’t trash B.",
+      "packets": [
+        {
+          "id": "p1a",
+          "from": "p1",
+          "to": "p2",
+          "variant": "malicious",
+          "outcome": "blocked",
+          "stopsAt": "p1",
+          "label": "isolated"
+        }
+      ],
+      "nodeCaptions": {
+        "p1": "Own address space, own resources (mostly).",
+        "p2": "Talking across processes needs explicit IPC — pipes, sockets, etc."
+      }
+    },
+    {
+      "caption": "Inside Process A, two threads share the same heap. They can both touch the same data.",
+      "packets": [
+        {
+          "id": "p2a",
+          "from": "t1",
+          "to": "t2",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "shared"
+        },
+        {
+          "id": "p2b",
+          "from": "t2",
+          "to": "t1",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "shared"
+        }
+      ],
+      "nodeCaptions": {
+        "t1": "Lightweight: same process, separate call stack.",
+        "t2": "Sharing is power and danger — races live here."
+      }
+    }
+  ],
+  "takeaways": [
+    "Processes isolate; threads share an address space.",
+    "Threads are cheaper to create/switch, but need synchronization.",
+    "Pick process boundaries for safety, threads for shared-memory parallelism."
+  ],
+  "quiz": [
+    {
+      "question": "Why can two threads corrupt the same variable more easily than two processes?",
+      "choices": [
+        "Threads are always slower",
+        "Threads share memory by default; processes don’t",
+        "Processes can’t run at the same time",
+        "Threads don’t have stacks"
+      ],
+      "correctIndex": 1,
+      "explanation": "Shared heap = concurrent access unless you coordinate."
+    }
+  ]
+}

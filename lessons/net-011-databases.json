@@ -1,0 +1,103 @@
+{
+  "chapter": 1,
+  "id": "net-011-databases",
+  "module": "net",
+  "title": "Databases",
+  "hook": "The web server often isn’t the source of truth — it asks a database, and that can be slow.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "You",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "app",
+      "label": "App server",
+      "kind": "server",
+      "lane": 0
+    },
+    {
+      "id": "db",
+      "label": "Database",
+      "kind": "database",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Your request hits the app server first.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "app",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "GET /user"
+        }
+      ],
+      "nodeCaptions": {
+        "app": "Application logic lives here — auth, formatting, business rules."
+      }
+    },
+    {
+      "caption": "The app queries the database for the actual row.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "app",
+          "to": "db",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "SQL"
+        },
+        {
+          "id": "p3",
+          "from": "db",
+          "to": "app",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "row"
+        }
+      ],
+      "nodeCaptions": {
+        "db": "Specialized for durable, queryable state. Often the bottleneck."
+      }
+    },
+    {
+      "caption": "App shapes a response and sends it back to you.",
+      "packets": [
+        {
+          "id": "p4",
+          "from": "app",
+          "to": "client",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "JSON"
+        }
+      ],
+      "nodeCaptions": {
+        "client": "You never spoke to the DB directly — and usually shouldn’t."
+      }
+    }
+  ],
+  "takeaways": [
+    "App servers and databases are different roles with different jobs.",
+    "Many “slow API” problems are really slow queries.",
+    "Keep databases behind the app — don’t expose them to the public internet."
+  ],
+  "quiz": [
+    {
+      "question": "Why doesn’t your browser usually query the database directly?",
+      "choices": [
+        "Databases can’t speak TCP",
+        "Security and logic belong in the app tier; DB holds the data",
+        "Browsers forbid all networking",
+        "Databases only store images"
+      ],
+      "correctIndex": 1,
+      "explanation": "Separation of concerns plus access control."
+    }
+  ]
+}

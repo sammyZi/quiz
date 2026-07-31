@@ -1,0 +1,126 @@
+{
+  "chapter": 1,
+  "id": "algo-003-recursion-call-stack",
+  "module": "algo",
+  "title": "Recursion & the call stack",
+  "hook": "Recursion isn’t magic — it’s the same function calling itself, stacking frames, then unwinding.",
+  "nodes": [
+    {
+      "id": "f1",
+      "label": "fact(3)",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "f2",
+      "label": "fact(2)",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "f3",
+      "label": "fact(1)",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "base",
+      "label": "Base 1",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "fact(3) needs fact(2), so a new frame stacks on top.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "f1",
+          "to": "f2",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "call"
+        }
+      ],
+      "nodeCaptions": {
+        "f1": "Waiting on the result of the inner call.",
+        "f2": "Each call gets its own locals on the stack."
+      }
+    },
+    {
+      "caption": "Keep stacking until you hit the base case.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "f2",
+          "to": "f3",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "call"
+        },
+        {
+          "id": "p3",
+          "from": "f3",
+          "to": "base",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "stop"
+        }
+      ],
+      "nodeCaptions": {
+        "base": "Base case returns without calling again — otherwise you’d recurse forever."
+      }
+    },
+    {
+      "caption": "Answers bubble back as frames pop: 1 → 2 → 6.",
+      "packets": [
+        {
+          "id": "p4",
+          "from": "base",
+          "to": "f3",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "1"
+        },
+        {
+          "id": "p5",
+          "from": "f3",
+          "to": "f2",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "2"
+        },
+        {
+          "id": "p6",
+          "from": "f2",
+          "to": "f1",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "6"
+        }
+      ],
+      "nodeCaptions": {
+        "f1": "Unwind is just returns. Deep recursion ⇒ deep stack."
+      }
+    }
+  ],
+  "takeaways": [
+    "Recursion = call stack frames stacking, then returning.",
+    "Every recursive function needs a base case that stops the chain.",
+    "Too much depth overflows the stack — same memory region as normal calls."
+  ],
+  "quiz": [
+    {
+      "question": "What happens if a recursive function never hits a base case?",
+      "choices": [
+        "It sorts the input instead",
+        "Calls keep stacking until the stack overflows",
+        "The heap deletes older frames automatically",
+        "Nothing — recursion can’t fail"
+      ],
+      "correctIndex": 1,
+      "explanation": "No base case means infinite (or until crash) recursion."
+    }
+  ]
+}

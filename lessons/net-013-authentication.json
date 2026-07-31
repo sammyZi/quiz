@@ -1,0 +1,96 @@
+{
+  "chapter": 1,
+  "id": "net-013-authentication",
+  "module": "net",
+  "title": "Authentication",
+  "hook": "Login once, then prove who you are on later requests with a token — not your password every time.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "You",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "auth",
+      "label": "Auth",
+      "kind": "gateway",
+      "lane": 0
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "You send credentials. Auth checks them and issues a token.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "auth",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "login"
+        },
+        {
+          "id": "p2",
+          "from": "auth",
+          "to": "client",
+          "variant": "encrypted",
+          "outcome": "pass",
+          "label": "token"
+        }
+      ],
+      "nodeCaptions": {
+        "auth": "Password verified here (hopefully hashed at rest).",
+        "client": "Stores the token securely for later calls."
+      }
+    },
+    {
+      "caption": "Later API calls carry the token. The API trusts auth’s earlier decision.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "client",
+          "to": "api",
+          "variant": "encrypted",
+          "outcome": "pass",
+          "label": "Bearer …"
+        },
+        {
+          "id": "p4",
+          "from": "api",
+          "to": "client",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "ok"
+        }
+      ],
+      "nodeCaptions": {
+        "api": "Validates the token (signature/expiry) without seeing your password again."
+      }
+    }
+  ],
+  "takeaways": [
+    "Authentication answers “who are you?” — usually once, then via tokens.",
+    "Tokens beat sending passwords on every request.",
+    "Protect tokens like passwords; expire and revoke them."
+  ],
+  "quiz": [
+    {
+      "question": "After login, why do APIs often use tokens?",
+      "choices": [
+        "Tokens are longer than passwords so they’re stronger automatically",
+        "So later requests can prove identity without resending the password",
+        "Tokens disable HTTPS",
+        "Databases only accept tokens"
+      ],
+      "correctIndex": 1,
+      "explanation": "Separation of login from ongoing API access."
+    }
+  ]
+}

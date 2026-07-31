@@ -1,0 +1,110 @@
+{
+  "chapter": 1,
+  "id": "os-002-scheduling",
+  "module": "os",
+  "title": "Scheduling",
+  "hook": "One CPU core runs one thing at a time — the scheduler rapidly switches so everyone gets a turn.",
+  "nodes": [
+    {
+      "id": "cpu",
+      "label": "CPU",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "a",
+      "label": "Proc A",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "b",
+      "label": "Proc B",
+      "kind": "generic",
+      "lane": 1
+    },
+    {
+      "id": "c",
+      "label": "Proc C",
+      "kind": "generic",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "A runs for a time slice, then the scheduler pauses it.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "cpu",
+          "to": "a",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "run"
+        }
+      ],
+      "nodeCaptions": {
+        "cpu": "Hardware executes whoever is currently scheduled.",
+        "a": "State is saved so A can resume later."
+      }
+    },
+    {
+      "caption": "B gets the core next — A isn’t finished, just waiting its turn.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "cpu",
+          "to": "b",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "run"
+        }
+      ],
+      "nodeCaptions": {
+        "b": "Fairness vs throughput vs latency — policies differ."
+      }
+    },
+    {
+      "caption": "C runs, then maybe A again. Nobody needs to finish first for others to make progress.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "cpu",
+          "to": "c",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "run"
+        },
+        {
+          "id": "p4",
+          "from": "cpu",
+          "to": "a",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "resume"
+        }
+      ],
+      "nodeCaptions": {
+        "c": "Preemption is why your UI can stay responsive while something compiles."
+      }
+    }
+  ],
+  "takeaways": [
+    "Scheduling multiplexes one core across many runnable tasks.",
+    "Time slices + saved state create the illusion of simultaneity.",
+    "Policy choices change what feels “fair” or “laggy.”"
+  ],
+  "quiz": [
+    {
+      "question": "If three processes are runnable on one core, what does the scheduler do?",
+      "choices": [
+        "Runs all three machine instructions in true parallel on that core",
+        "Switches the core between them over time",
+        "Deletes two of them",
+        "Moves them all to disk"
+      ],
+      "correctIndex": 1,
+      "explanation": "One core, one thread of execution at a time — switching creates concurrency."
+    }
+  ]
+}

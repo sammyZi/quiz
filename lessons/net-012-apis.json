@@ -1,0 +1,96 @@
+{
+  "chapter": 1,
+  "id": "net-012-apis",
+  "module": "net",
+  "title": "APIs",
+  "hook": "Apps talk to apps without a human clicking — that’s an API call.",
+  "nodes": [
+    {
+      "id": "appA",
+      "label": "App A",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "kind": "gateway",
+      "lane": 0
+    },
+    {
+      "id": "appB",
+      "label": "App B",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "App A sends a structured request to App B’s API — no browser UI required.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "appA",
+          "to": "api",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "POST /pay"
+        }
+      ],
+      "nodeCaptions": {
+        "appA": "Could be your backend, a mobile app, or a cron job.",
+        "api": "Contract: URLs, methods, auth, JSON shapes."
+      }
+    },
+    {
+      "caption": "App B handles it and returns a machine-readable response.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "api",
+          "to": "appB",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "handle"
+        },
+        {
+          "id": "p3",
+          "from": "appB",
+          "to": "api",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "200"
+        },
+        {
+          "id": "p4",
+          "from": "api",
+          "to": "appA",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "JSON"
+        }
+      ],
+      "nodeCaptions": {
+        "appB": "Same request/response idea as the web — consumers are programs."
+      }
+    }
+  ],
+  "takeaways": [
+    "APIs are contracts for machine-to-machine requests.",
+    "HTTP JSON APIs are common; the pattern isn’t limited to HTTP.",
+    "Versioning and auth matter because other programs depend on you."
+  ],
+  "quiz": [
+    {
+      "question": "What is an API primarily for?",
+      "choices": [
+        "Drawing CSS animations",
+        "Letting programs request work/data from other programs",
+        "Cooling the CPU",
+        "Assigning MAC addresses"
+      ],
+      "correctIndex": 1,
+      "explanation": "Human UIs are optional — the interface is for software."
+    }
+  ]
+}

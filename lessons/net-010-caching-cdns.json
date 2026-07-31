@@ -1,0 +1,105 @@
+{
+  "chapter": 1,
+  "id": "net-010-caching-cdns",
+  "module": "net",
+  "title": "Caching & CDNs",
+  "hook": "The second request shouldn’t always travel all the way to the origin.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "You",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "cdn",
+      "label": "CDN edge",
+      "kind": "cache",
+      "lane": 0
+    },
+    {
+      "id": "origin",
+      "label": "Origin",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "First visit: edge doesn’t have the file, so it fetches from origin.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "cdn",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "GET"
+        },
+        {
+          "id": "p2",
+          "from": "cdn",
+          "to": "origin",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "miss"
+        },
+        {
+          "id": "p3",
+          "from": "origin",
+          "to": "cdn",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "file"
+        }
+      ],
+      "nodeCaptions": {
+        "cdn": "Caches a copy near users for the next hit.",
+        "origin": "Source of truth — protected from every repeat download."
+      }
+    },
+    {
+      "caption": "Second visit: edge answers from cache. Origin never hears about it.",
+      "packets": [
+        {
+          "id": "p4",
+          "from": "client",
+          "to": "cdn",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "GET"
+        },
+        {
+          "id": "p5",
+          "from": "cdn",
+          "to": "client",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "hit"
+        }
+      ],
+      "nodeCaptions": {
+        "cdn": "That’s the short-circuit. Faster for you, cheaper for origin.",
+        "origin": "Idle — the whole point of a CDN for static assets."
+      }
+    }
+  ],
+  "takeaways": [
+    "Caches store recent responses to avoid repeating expensive work.",
+    "CDNs put caches geographically closer to users.",
+    "Cache invalidation — knowing when a copy is stale — is the hard part."
+  ],
+  "quiz": [
+    {
+      "question": "On a CDN cache hit, who usually serves the file?",
+      "choices": [
+        "Always the origin database",
+        "The edge cache, without asking origin",
+        "Your ISP’s email server",
+        "A random user’s phone"
+      ],
+      "correctIndex": 1,
+      "explanation": "Hit = answered from cache. Miss = fetch (then often store)."
+    }
+  ]
+}

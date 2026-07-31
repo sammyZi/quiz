@@ -1,0 +1,111 @@
+{
+  "chapter": 1,
+  "id": "cpu-003-fetch-decode-execute",
+  "module": "cpu",
+  "title": "Fetch–decode–execute",
+  "hook": "A CPU doesn’t “run a program” in one gulp — it walks the same tiny loop, forever.",
+  "nodes": [
+    {
+      "id": "mem",
+      "label": "Memory",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "fetch",
+      "label": "Fetch",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "decode",
+      "label": "Decode",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "execute",
+      "label": "Execute",
+      "kind": "generic",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Fetch: pull the next instruction from memory into the CPU.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "mem",
+          "to": "fetch",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "instr"
+        }
+      ],
+      "nodeCaptions": {
+        "mem": "Instructions live in memory as ordinary bytes.",
+        "fetch": "The program counter says which address to grab next."
+      }
+    },
+    {
+      "caption": "Decode: figure out what that instruction means.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "fetch",
+          "to": "decode",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "decode"
+        }
+      ],
+      "nodeCaptions": {
+        "decode": "The decoder maps the bit pattern to an operation and its operands."
+      }
+    },
+    {
+      "caption": "Execute: do the work, then go fetch the next instruction.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "decode",
+          "to": "execute",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "run"
+        },
+        {
+          "id": "p4",
+          "from": "execute",
+          "to": "mem",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "next"
+        }
+      ],
+      "nodeCaptions": {
+        "execute": "ALU, registers, memory writes — this is where the effect happens.",
+        "mem": "Then the cycle repeats. Billions of times per second."
+      }
+    }
+  ],
+  "takeaways": [
+    "Programs are streams of instructions the CPU fetches one (or a few) at a time.",
+    "Fetch → decode → execute is the loop underneath every language you write.",
+    "“Running code” is mostly this cycle, over and over."
+  ],
+  "quiz": [
+    {
+      "question": "What does the CPU do after it executes an instruction?",
+      "choices": [
+        "Shut down until you press a key",
+        "Fetch the next instruction and keep going",
+        "Delete the program from memory",
+        "Wait for the disk to approve it"
+      ],
+      "correctIndex": 1,
+      "explanation": "The cycle continues until the program ends, blocks, or the machine stops."
+    }
+  ]
+}

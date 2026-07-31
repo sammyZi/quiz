@@ -1,0 +1,104 @@
+{
+  "chapter": 1,
+  "id": "algo-004-big-o",
+  "module": "algo",
+  "title": "Big O",
+  "hook": "Big O asks: when the input grows, which algorithm falls off a cliff first?",
+  "nodes": [
+    {
+      "id": "input",
+      "label": "Input n",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "log",
+      "label": "O(log n)",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "linear",
+      "label": "O(n)",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "quad",
+      "label": "O(n²)",
+      "kind": "generic",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Feed a small n. All three strategies finish — differences are hard to feel.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "input",
+          "to": "log",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "n=10"
+        },
+        {
+          "id": "p2",
+          "from": "input",
+          "to": "linear",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "n=10"
+        }
+      ],
+      "nodeCaptions": {
+        "log": "Binary search style — steps grow slowly.",
+        "linear": "One pass over the input."
+      }
+    },
+    {
+      "caption": "Grow n a lot. O(n²) does wildly more work than the others.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "input",
+          "to": "quad",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "n=1000"
+        },
+        {
+          "id": "p4",
+          "from": "quad",
+          "to": "input",
+          "variant": "malicious",
+          "outcome": "blocked",
+          "stopsAt": "quad",
+          "label": "too slow"
+        }
+      ],
+      "nodeCaptions": {
+        "quad": "Nested loops over n: work scales with n×n. That’s the cliff.",
+        "linear": "Still proportional to n — painful later, but not quadratic painful."
+      }
+    }
+  ],
+  "takeaways": [
+    "Big O ignores constants to highlight how work scales with n.",
+    "log n ≪ n ≪ n² for large n — the ranking matters more than the labels.",
+    "Pick algorithms for the n you actually expect in production."
+  ],
+  "quiz": [
+    {
+      "question": "If n grows from 100 to 10,000, which grows worst?",
+      "choices": [
+        "O(log n)",
+        "O(n)",
+        "O(n²)",
+        "They all grow the same"
+      ],
+      "correctIndex": 2,
+      "explanation": "Quadratic work explodes fastest as n increases."
+    }
+  ]
+}

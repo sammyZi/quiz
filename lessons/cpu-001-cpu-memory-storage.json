@@ -1,0 +1,113 @@
+{
+  "id": "cpu-001-cpu-memory-storage",
+  "chapter": 1,
+  "module": "cpu",
+  "title": "CPU, memory, storage",
+  "hook": "Your computer keeps data in three places. Close = fast. Far = slow.",
+  "nodes": [
+    { "id": "cpu", "label": "CPU", "kind": "generic", "lane": 0 },
+    { "id": "ram", "label": "RAM", "kind": "generic", "lane": 0 },
+    { "id": "disk", "label": "Disk", "kind": "generic", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "You open a photo. The CPU (the part that does the work) looks in RAM first. RAM is fast memory for things you are using right now.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "cpu",
+          "to": "ram",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "Is the photo in fast memory?"
+        }
+      ],
+      "nodeCaptions": {
+        "cpu": "CPU does the work. It needs the data close by.",
+        "ram": "RAM is fast memory. It clears when you turn the computer off."
+      }
+    },
+    {
+      "caption": "The photo is not in RAM. So the computer looks on the Disk. Disk is where files are saved. It is slower.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "ram",
+          "to": "disk",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "Look in saved files"
+        }
+      ],
+      "nodeCaptions": {
+        "disk": "Disk (or SSD) keeps your files even after you shut down. Slower than RAM.",
+        "ram": "RAM did not have the photo, so it asks the Disk."
+      }
+    },
+    {
+      "caption": "Found it. The photo is copied into RAM, then the CPU can show it. Next time it can open faster, because a copy may already be in RAM.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "disk",
+          "to": "ram",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "Copy photo into RAM"
+        },
+        {
+          "id": "p4",
+          "from": "ram",
+          "to": "cpu",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "CPU can use it now"
+        }
+      ],
+      "nodeCaptions": {
+        "ram": "A copy stays in RAM for a while. That is why the second open can feel quicker.",
+        "cpu": "Now the CPU has what it needs. Waiting on Disk is what makes apps feel slow."
+      }
+    }
+  ],
+  "takeaways": [
+    "RAM is fast. Disk is slower but keeps your files.",
+    "Turn the computer off → RAM clears. Disk still has your files.",
+    "Apps feel slow when they keep reading from Disk instead of RAM."
+  ],
+  "quiz": [
+    {
+      "question": "Which is usually faster for the CPU?",
+      "choices": [
+        "Disk",
+        "RAM",
+        "The internet",
+        "A USB stick"
+      ],
+      "correctIndex": 1,
+      "explanation": "RAM is close and fast. Disk is farther and slower."
+    },
+    {
+      "question": "You turn the computer off. What happens?",
+      "choices": [
+        "RAM and Disk both forget everything",
+        "RAM clears. Disk still has your files.",
+        "Disk clears. RAM keeps everything.",
+        "Nothing changes"
+      ],
+      "correctIndex": 1,
+      "explanation": "RAM needs power. Disk keeps files after shutdown."
+    },
+    {
+      "question": "Why can the same photo open faster the second time?",
+      "choices": [
+        "The internet got faster",
+        "A copy may already be in RAM",
+        "The CPU got smarter",
+        "The disk deleted it"
+      ],
+      "correctIndex": 1,
+      "explanation": "After the first open, a copy often sits in RAM."
+    }
+  ]
+}

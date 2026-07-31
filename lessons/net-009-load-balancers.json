@@ -1,0 +1,108 @@
+{
+  "chapter": 1,
+  "id": "net-009-load-balancers",
+  "module": "net",
+  "title": "Load balancers",
+  "hook": "One public door, many identical servers behind it — the balancer picks who answers.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "You",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "lb",
+      "label": "Load balancer",
+      "kind": "loadbalancer",
+      "lane": 0
+    },
+    {
+      "id": "s1",
+      "label": "Server 1",
+      "kind": "server",
+      "lane": 0
+    },
+    {
+      "id": "s2",
+      "label": "Server 2",
+      "kind": "server",
+      "lane": 1
+    },
+    {
+      "id": "s3",
+      "label": "Server 3",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Your request hits the load balancer, not a single app server.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "lb",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "req"
+        }
+      ],
+      "nodeCaptions": {
+        "lb": "Health checks and algorithms (round-robin, least connections…) choose a backend."
+      }
+    },
+    {
+      "caption": "It forwards to one healthy server — today, Server 2.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "lb",
+          "to": "s2",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "fwd"
+        },
+        {
+          "id": "p3",
+          "from": "s2",
+          "to": "lb",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "ok"
+        },
+        {
+          "id": "p4",
+          "from": "lb",
+          "to": "client",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "ok"
+        }
+      ],
+      "nodeCaptions": {
+        "s2": "You didn’t pick Server 2 — the balancer did.",
+        "s1": "Idle this request; ready for the next."
+      }
+    }
+  ],
+  "takeaways": [
+    "Load balancers spread traffic so no single server is the only path.",
+    "Clients usually talk to a virtual address in front of many backends.",
+    "Health checks keep broken servers out of rotation."
+  ],
+  "quiz": [
+    {
+      "question": "What problem does a load balancer mainly solve?",
+      "choices": [
+        "Encrypting passwords on disk",
+        "Spreading requests across multiple servers",
+        "Assigning IP addresses on your LAN",
+        "Compiling your source code"
+      ],
+      "correctIndex": 1,
+      "explanation": "Distribution and failover — not application business logic."
+    }
+  ]
+}

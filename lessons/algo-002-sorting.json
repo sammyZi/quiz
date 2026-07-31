@@ -1,0 +1,103 @@
+{
+  "chapter": 1,
+  "id": "algo-002-sorting",
+  "module": "algo",
+  "title": "Sorting",
+  "hook": "Sorting is elements physically finding their place — comparisons decide who swaps.",
+  "nodes": [
+    {
+      "id": "a",
+      "label": "7",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "b",
+      "label": "2",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "c",
+      "label": "5",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "cursor",
+      "label": "Compare",
+      "kind": "client",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Compare neighbors. 7 and 2 are out of order, so they swap.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "cursor",
+          "to": "a",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "?"
+        },
+        {
+          "id": "p2",
+          "from": "a",
+          "to": "b",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "swap"
+        }
+      ],
+      "nodeCaptions": {
+        "cursor": "Different sorts pick different pairs, but the idea is compare → maybe swap/move.",
+        "a": "After the swap this slot holds the smaller value."
+      }
+    },
+    {
+      "caption": "Keep comparing until every element is in order.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "b",
+          "to": "c",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "swap?"
+        },
+        {
+          "id": "p4",
+          "from": "c",
+          "to": "cursor",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "done"
+        }
+      ],
+      "nodeCaptions": {
+        "c": "When no more swaps are needed, the array is sorted.",
+        "b": "Faster algorithms avoid obvious wasted comparisons — same goal, less work."
+      }
+    }
+  ],
+  "takeaways": [
+    "Sorting rearranges by comparisons (or by counting/radix tricks).",
+    "Naive sorts are easy to see; better sorts reduce how many swaps you need.",
+    "Sorted data unlocks binary search and many other algorithms."
+  ],
+  "quiz": [
+    {
+      "question": "What is sorting doing, in one sentence?",
+      "choices": [
+        "Deleting duplicates from memory",
+        "Rearranging elements into an agreed order",
+        "Compressing the array",
+        "Moving the array to the GPU"
+      ],
+      "correctIndex": 1,
+      "explanation": "Order is the product — algorithms differ in how they get there."
+    }
+  ]
+}

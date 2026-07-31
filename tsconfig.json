@@ -1,6 +1,10 @@
 {
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    // scripts/ runs under `node --experimental-strip-types`, which requires the
+    // explicit .ts extension on relative imports that tsc otherwise rejects.
+    "allowImportingTsExtensions": true,
+    "types": ["node", "react"]
   }
 }

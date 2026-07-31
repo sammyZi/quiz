@@ -1,0 +1,95 @@
+{
+  "chapter": 1,
+  "id": "ds-004-trees",
+  "module": "ds",
+  "title": "Trees",
+  "hook": "In a balanced tree, each comparison throws away about half of what’s left.",
+  "nodes": [
+    {
+      "id": "root",
+      "label": "Root 50",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "left",
+      "label": "20",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "right",
+      "label": "80",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "target",
+      "label": "Want 20",
+      "kind": "client",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Start at the root. 20 is less than 50, so go left — the whole right side is irrelevant.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "target",
+          "to": "root",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "20?"
+        }
+      ],
+      "nodeCaptions": {
+        "root": "BST rule: left subtree smaller, right subtree larger.",
+        "right": "Ignored this step — that’s the halving."
+      }
+    },
+    {
+      "caption": "At 20 you find the value. One more comparison, search over.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "root",
+          "to": "left",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "left"
+        },
+        {
+          "id": "p3",
+          "from": "left",
+          "to": "target",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "found"
+        }
+      ],
+      "nodeCaptions": {
+        "left": "Depth is roughly log₂(n) in a balanced tree.",
+        "target": "That’s why tree maps and sets feel fast on big data."
+      }
+    }
+  ],
+  "takeaways": [
+    "Trees turn “scan everything” into “eliminate half” when balanced.",
+    "Structure (ordering invariants) is what makes the halving legal.",
+    "A skewed tree degrades toward a linked list — balance matters."
+  ],
+  "quiz": [
+    {
+      "question": "In a balanced binary search tree, why is lookup fast?",
+      "choices": [
+        "Every node stores every other node’s address",
+        "Each comparison discards about half the remaining nodes",
+        "Trees live in CPU registers only",
+        "Lookup always takes exactly two steps"
+      ],
+      "correctIndex": 1,
+      "explanation": "Halving each step is the log n story."
+    }
+  ]
+}

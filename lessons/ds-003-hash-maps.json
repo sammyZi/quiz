@@ -1,0 +1,109 @@
+{
+  "chapter": 1,
+  "id": "ds-003-hash-maps",
+  "module": "ds",
+  "title": "Hash maps",
+  "hook": "A hash map turns a key into a bucket number so you don’t have to scan everything.",
+  "nodes": [
+    {
+      "id": "key",
+      "label": "Key",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "hash",
+      "label": "Hash",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "b0",
+      "label": "Bucket 0",
+      "kind": "generic",
+      "lane": 1
+    },
+    {
+      "id": "b1",
+      "label": "Bucket 1",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "b2",
+      "label": "Bucket 2",
+      "kind": "generic",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "The key runs through a hash function and becomes a number.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "key",
+          "to": "hash",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "hash()"
+        }
+      ],
+      "nodeCaptions": {
+        "key": "Keys can be strings, numbers, whatever the map supports.",
+        "hash": "A good hash spreads keys around so buckets stay short."
+      }
+    },
+    {
+      "caption": "That number picks a bucket. Lookup only searches inside that bucket.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "hash",
+          "to": "b1",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "bucket"
+        }
+      ],
+      "nodeCaptions": {
+        "b1": "If two keys collide, they share a bucket — still better than scanning all keys.",
+        "b0": "Other buckets aren’t touched for this lookup."
+      }
+    },
+    {
+      "caption": "The value comes back from the bucket.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "b1",
+          "to": "key",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "value"
+        }
+      ],
+      "nodeCaptions": {
+        "key": "Average case feels like O(1). Worst case, everything collided."
+      }
+    }
+  ],
+  "takeaways": [
+    "Hash maps trade a bit of compute (hashing) for fast average-case lookup.",
+    "Collisions are normal; bucket strategy is how you handle them.",
+    "“O(1)” is a promise about averages, not a hard guarantee."
+  ],
+  "quiz": [
+    {
+      "question": "What does the hash function do in a hash map?",
+      "choices": [
+        "Sorts the keys alphabetically",
+        "Turns a key into a bucket index",
+        "Encrypts the value",
+        "Deletes duplicate keys"
+      ],
+      "correctIndex": 1,
+      "explanation": "Hash → bucket. That’s the jump from “scan all keys” to “check one bucket.”"
+    }
+  ]
+}

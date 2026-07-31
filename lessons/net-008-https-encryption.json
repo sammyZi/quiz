@@ -1,0 +1,90 @@
+{
+  "chapter": 1,
+  "id": "net-008-https-encryption",
+  "module": "net",
+  "title": "HTTPS & encryption",
+  "hook": "HTTPS is the same request/response — wrapped so a snoop on the wire can’t read it.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "You",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "snoop",
+      "label": "Snoop",
+      "kind": "firewall",
+      "lane": 1
+    },
+    {
+      "id": "server",
+      "label": "Server",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Your browser and the server set up an encrypted session (TLS).",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "server",
+          "variant": "encrypted",
+          "outcome": "pass",
+          "label": "TLS"
+        }
+      ],
+      "nodeCaptions": {
+        "client": "Certificates help you know you’re talking to the real server.",
+        "server": "After handshake, application data is encrypted."
+      }
+    },
+    {
+      "caption": "The HTTP request travels encrypted. A snoop sees ciphertext, not your password.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "client",
+          "to": "server",
+          "variant": "encrypted",
+          "outcome": "pass",
+          "label": "GET"
+        },
+        {
+          "id": "p3",
+          "from": "client",
+          "to": "snoop",
+          "variant": "encrypted",
+          "outcome": "blocked",
+          "stopsAt": "snoop",
+          "label": "???"
+        }
+      ],
+      "nodeCaptions": {
+        "snoop": "Can still see that you’re talking to an IP — not the contents.",
+        "server": "Decrypts with the session keys and handles normal HTTP."
+      }
+    }
+  ],
+  "takeaways": [
+    "HTTPS = HTTP plus TLS encryption and authentication of the server.",
+    "Encryption hides contents from on-path observers, not from the server itself.",
+    "Metadata (that you connected) can still leak."
+  ],
+  "quiz": [
+    {
+      "question": "What does HTTPS protect from a network snoop?",
+      "choices": [
+        "The fact that you connected to a server",
+        "The readable contents of your request and response",
+        "Bugs in server application logic",
+        "A stolen laptop unlocked on your desk"
+      ],
+      "correctIndex": 1,
+      "explanation": "TLS encrypts the payload. Endpoint compromise is a different problem."
+    }
+  ]
+}

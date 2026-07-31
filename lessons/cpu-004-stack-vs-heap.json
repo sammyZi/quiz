@@ -1,0 +1,97 @@
+{
+  "chapter": 1,
+  "id": "cpu-004-stack-vs-heap",
+  "module": "cpu",
+  "title": "Stack vs heap",
+  "hook": "Your program’s memory isn’t one big pile — stack and heap grow for different reasons.",
+  "nodes": [
+    {
+      "id": "code",
+      "label": "Your code",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "stack",
+      "label": "Stack",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "heap",
+      "label": "Heap",
+      "kind": "generic",
+      "lane": 1
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Call a function: a new stack frame appears with locals and the return address.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "code",
+          "to": "stack",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "frame"
+        }
+      ],
+      "nodeCaptions": {
+        "stack": "Stack frames are LIFO — last call in, first cleaned up when it returns.",
+        "code": "Each call pushes; each return pops. Fast and automatic."
+      }
+    },
+    {
+      "caption": "Ask for a chunk that outlives the function — allocation goes to the heap.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "code",
+          "to": "heap",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "alloc"
+        }
+      ],
+      "nodeCaptions": {
+        "heap": "Heap memory sticks around until you free it (or a GC does). Order is flexible, bookkeeping costs more."
+      }
+    },
+    {
+      "caption": "Function returns: the stack frame vanishes. The heap object can still be there.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "stack",
+          "to": "code",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "return"
+        }
+      ],
+      "nodeCaptions": {
+        "stack": "Popping the frame reclaims those locals immediately.",
+        "heap": "If nothing points at a heap object anymore, it’s garbage — reclaimable later."
+      }
+    }
+  ],
+  "takeaways": [
+    "Stack is for short-lived, nested call data. Heap is for data with flexible lifetime.",
+    "Stack allocation is cheap and automatic; heap allocation needs management.",
+    "Use-after-free and leaks are almost always heap lifetime mistakes."
+  ],
+  "quiz": [
+    {
+      "question": "Where do a function’s local variables usually live?",
+      "choices": [
+        "Only on disk",
+        "On the stack frame for that call",
+        "Only in the GPU",
+        "In DNS"
+      ],
+      "correctIndex": 1,
+      "explanation": "Locals are part of the stack frame and disappear when the function returns."
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "chapter": 1,
+  "id": "ds-001-arrays",
+  "module": "ds",
+  "title": "Arrays & contiguous memory",
+  "hook": "An array is just items laid out back-to-back — so index math can jump straight to a slot.",
+  "nodes": [
+    {
+      "id": "index",
+      "label": "Index 2",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "s0",
+      "label": "[0]",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "s1",
+      "label": "[1]",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "s2",
+      "label": "[2]",
+      "kind": "generic",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "You ask for index 2. No walking — start address + 2 × item size lands on the slot.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "index",
+          "to": "s2",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "jump"
+        }
+      ],
+      "nodeCaptions": {
+        "index": "Random access: time doesn’t grow with how far the index is.",
+        "s2": "Contiguous layout is what makes the jump possible."
+      }
+    },
+    {
+      "caption": "The value comes straight back. Slots 0 and 1 weren’t visited.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "s2",
+          "to": "index",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "value"
+        }
+      ],
+      "nodeCaptions": {
+        "s0": "Still there — just not needed for this lookup.",
+        "s1": "Arrays trade flexible insert/delete for O(1) reads by index."
+      }
+    }
+  ],
+  "takeaways": [
+    "Contiguous memory + fixed item size ⇒ direct index addressing.",
+    "Reading by index is fast; inserting in the middle usually means shifting neighbors.",
+    "Cache-friendly layouts matter because CPUs love sequential memory."
+  ],
+  "quiz": [
+    {
+      "question": "Why can an array jump to index 100 without visiting 0–99?",
+      "choices": [
+        "It stores a pointer to every index in a hash map",
+        "Items sit in contiguous memory, so address = start + index × size",
+        "Arrays are stored on disk only",
+        "The CPU guesses"
+      ],
+      "correctIndex": 1,
+      "explanation": "That’s the whole point of contiguous layout."
+    }
+  ]
+}

@@ -1,15 +1,15 @@
 import { useEffect } from 'react';
 import * as SplashScreen from 'expo-splash-screen';
-import { useFonts, ArchivoBlack_400Regular } from '@expo-google-fonts/archivo-black';
 import { SpaceGrotesk_400Regular, SpaceGrotesk_700Bold } from '@expo-google-fonts/space-grotesk';
 import { JetBrainsMono_400Regular } from '@expo-google-fonts/jetbrains-mono';
+import { useFonts } from 'expo-font';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { RootNavigator } from './src/navigation/RootNavigator';
 
 SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const [fontsLoaded] = useFonts({
-    ArchivoBlack_400Regular,
     SpaceGrotesk_400Regular,
     SpaceGrotesk_700Bold,
     JetBrainsMono_400Regular,
@@ -25,5 +25,9 @@ export default function App() {
     return null;
   }
 
-  return <RootNavigator />;
+  return (
+    <SafeAreaProvider>
+      <RootNavigator />
+    </SafeAreaProvider>
+  );
 }

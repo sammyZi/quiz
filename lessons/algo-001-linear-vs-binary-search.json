@@ -1,0 +1,110 @@
+{
+  "chapter": 1,
+  "id": "algo-001-linear-vs-binary-search",
+  "module": "algo",
+  "title": "Linear vs binary search",
+  "hook": "Same sorted list, two strategies: check one-by-one, or keep cutting the range in half.",
+  "nodes": [
+    {
+      "id": "linear",
+      "label": "Linear",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "binary",
+      "label": "Binary",
+      "kind": "client",
+      "lane": 1
+    },
+    {
+      "id": "arr",
+      "label": "Sorted[]",
+      "kind": "generic",
+      "lane": 0
+    },
+    {
+      "id": "hit",
+      "label": "Target",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Linear search starts at the left and walks until it hits the target.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "linear",
+          "to": "arr",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "scan"
+        }
+      ],
+      "nodeCaptions": {
+        "linear": "Simple. On average checks about half the items. Worst case: all of them.",
+        "arr": "Works even if the array isn’t sorted — binary search won’t."
+      }
+    },
+    {
+      "caption": "Binary search jumps to the middle, then only keeps the half that can still hold the target.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "binary",
+          "to": "arr",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "mid"
+        }
+      ],
+      "nodeCaptions": {
+        "binary": "Needs sorted order. Each step halves the remaining search space."
+      }
+    },
+    {
+      "caption": "Both can find it — binary just asks far fewer questions on a big list.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "arr",
+          "to": "hit",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "found"
+        },
+        {
+          "id": "p4",
+          "from": "hit",
+          "to": "binary",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "index"
+        }
+      ],
+      "nodeCaptions": {
+        "hit": "log₂(n) steps vs up to n steps is why sorting once can pay off."
+      }
+    }
+  ],
+  "takeaways": [
+    "Linear search is simple and works on unsorted data.",
+    "Binary search needs order and rewards you with logarithmic steps.",
+    "Pick based on whether you can afford sorting and how often you search."
+  ],
+  "quiz": [
+    {
+      "question": "What must be true before binary search is correct?",
+      "choices": [
+        "The list must fit in one CPU cache line",
+        "The list must be sorted (by the same order you compare)",
+        "The list must contain only even numbers",
+        "The list must be a linked list"
+      ],
+      "correctIndex": 1,
+      "explanation": "Binary search’s “discard half” move assumes the remaining half still contains the answer."
+    }
+  ]
+}

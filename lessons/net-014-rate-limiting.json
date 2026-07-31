@@ -1,0 +1,89 @@
+{
+  "chapter": 1,
+  "id": "net-014-rate-limiting",
+  "module": "net",
+  "title": "Rate limiting",
+  "hook": "A gate that allows N requests per window — then starts saying no.",
+  "nodes": [
+    {
+      "id": "client",
+      "label": "Client",
+      "kind": "client",
+      "lane": 0
+    },
+    {
+      "id": "gate",
+      "label": "Rate limit",
+      "kind": "firewall",
+      "lane": 0
+    },
+    {
+      "id": "api",
+      "label": "API",
+      "kind": "server",
+      "lane": 0
+    }
+  ],
+  "steps": [
+    {
+      "caption": "Under the limit, requests pass through to the API.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "client",
+          "to": "gate",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "1/N"
+        },
+        {
+          "id": "p2",
+          "from": "gate",
+          "to": "api",
+          "variant": "request",
+          "outcome": "pass",
+          "label": "ok"
+        }
+      ],
+      "nodeCaptions": {
+        "gate": "Counters per IP, user, or API key — policy choice."
+      }
+    },
+    {
+      "caption": "Too many too fast: the gate blocks. The API never sees the flood.",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "client",
+          "to": "api",
+          "variant": "malicious",
+          "outcome": "blocked",
+          "stopsAt": "gate",
+          "label": "429"
+        }
+      ],
+      "nodeCaptions": {
+        "gate": "Protects capacity and blunt abuse. Clients should back off.",
+        "api": "Still healthy for everyone else."
+      }
+    }
+  ],
+  "takeaways": [
+    "Rate limits cap how often a client may call you.",
+    "Blocking at the edge protects backends from stampedes.",
+    "Good APIs return clear “try later” signals (e.g. 429)."
+  ],
+  "quiz": [
+    {
+      "question": "What is rate limiting mainly for?",
+      "choices": [
+        "Making JSON prettier",
+        "Stopping one client from overwhelming a service",
+        "Assigning domain names",
+        "Encrypting disks"
+      ],
+      "correctIndex": 1,
+      "explanation": "Fairness and survival under load/abuse."
+    }
+  ]
+}
