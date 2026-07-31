@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Modal, StyleSheet, Text, View } from 'react-native';
 import { theme } from '../theme/theme';
 import { BrutalButton } from './BrutalButton';
+import { RiveCharacter } from './RiveCharacter';
 
 type DonePopupProps = {
   hasNext: boolean;
@@ -70,9 +71,7 @@ export function DonePopup({ hasNext, onNext, onDone }: DonePopupProps) {
             },
           ]}
         >
-          <View style={styles.check}>
-            <Text style={styles.checkMark}>✓</Text>
-          </View>
+          <RiveCharacter mood="celebrate" size={96} />
           <Text style={styles.title}>Completed</Text>
 
           {showActions ? (
@@ -108,24 +107,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     alignItems: 'center',
   },
-  check: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: theme.light.tint.mint,
-    borderWidth: 3,
-    borderColor: theme.light.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 12,
-  },
-  checkMark: {
-    fontFamily: theme.font.display,
-    fontSize: 36,
-    color: theme.light.ink,
-    marginTop: -4,
-  },
   title: {
+    marginTop: theme.spacing.sm,
     fontFamily: theme.font.display,
     fontSize: 32,
     color: theme.light.ink,

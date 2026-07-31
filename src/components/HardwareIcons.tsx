@@ -147,8 +147,61 @@ export function OpcodeIcon({ size = 40 }: IconProps) {
     <Svg width={s} height={s} viewBox="0 0 40 40">
       <Rect x={6} y={10} width={28} height={20} rx={5} fill={ink} />
       <Rect x={10} y={14} width={20} height={12} rx={3} fill={theme.light.tint.lilac} />
-      {/* play / run triangle */}
       <Path d="M17 17 L26 20 L17 23 Z" fill={ink} />
+    </Svg>
+  );
+}
+
+/** Instruction memory — rows of stored commands. */
+export function MemoryBoxIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      <Rect x={6} y={6} width={28} height={28} rx={5} fill={ink} />
+      <Rect x={9} y={10} width={22} height={5} rx={1.5} fill={theme.light.tint.sky} />
+      <Rect x={9} y={17.5} width={22} height={5} rx={1.5} fill={theme.light.tint.mint} />
+      <Rect x={9} y={25} width={22} height={5} rx={1.5} fill={theme.light.tint.sun} />
+    </Svg>
+  );
+}
+
+/** Fetch — pull the next command. */
+export function FetchIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      <Circle cx={20} cy={20} r={15} fill={theme.light.tint.sky} stroke={ink} strokeWidth={2} />
+      <Path
+        d="M12 20h12M20 13l7 7-7 7"
+        stroke={ink}
+        strokeWidth={2.5}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+    </Svg>
+  );
+}
+
+/** Decode — figure out the meaning. */
+export function DecodeIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      <Circle cx={18} cy={18} r={9} fill={theme.light.tint.lilac} stroke={ink} strokeWidth={2} />
+      <Path d="M24 24l7 7" stroke={ink} strokeWidth={3} strokeLinecap="round" />
+      <Path d="M14 18h8M18 14v8" stroke={ink} strokeWidth={2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+/** Execute — do the work. */
+export function ExecuteIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      <Circle cx={20} cy={20} r={15} fill={theme.light.tint.mint} stroke={ink} strokeWidth={2} />
+      <Path d="M16 14 L28 20 L16 26 Z" fill={ink} />
     </Svg>
   );
 }

@@ -3,36 +3,16 @@
   "id": "cpu-003-fetch-decode-execute",
   "module": "cpu",
   "title": "Fetch–decode–execute",
-  "hook": "A CPU doesn’t “run a program” in one gulp — it walks the same tiny loop, forever.",
+  "hook": "The CPU does the same 3 steps again and again: get a command, read it, do it.",
   "nodes": [
-    {
-      "id": "mem",
-      "label": "Memory",
-      "kind": "generic",
-      "lane": 0
-    },
-    {
-      "id": "fetch",
-      "label": "Fetch",
-      "kind": "generic",
-      "lane": 0
-    },
-    {
-      "id": "decode",
-      "label": "Decode",
-      "kind": "generic",
-      "lane": 0
-    },
-    {
-      "id": "execute",
-      "label": "Execute",
-      "kind": "generic",
-      "lane": 0
-    }
+    { "id": "mem", "label": "Memory", "kind": "generic", "lane": 0 },
+    { "id": "fetch", "label": "Fetch", "kind": "generic", "lane": 1 },
+    { "id": "decode", "label": "Decode", "kind": "generic", "lane": 1 },
+    { "id": "execute", "label": "Execute", "kind": "generic", "lane": 1 }
   ],
   "steps": [
     {
-      "caption": "Fetch: pull the next instruction from memory into the CPU.",
+      "caption": "Step 1 — Fetch: get the next command from memory.",
       "packets": [
         {
           "id": "p1",
@@ -40,16 +20,16 @@
           "to": "fetch",
           "variant": "control",
           "outcome": "pass",
-          "label": "instr"
+          "label": "command"
         }
       ],
       "nodeCaptions": {
-        "mem": "Instructions live in memory as ordinary bytes.",
-        "fetch": "The program counter says which address to grab next."
+        "mem": "Memory holds the list of commands.",
+        "fetch": "Fetch means: pull the next command in."
       }
     },
     {
-      "caption": "Decode: figure out what that instruction means.",
+      "caption": "Step 2 — Decode: figure out what that command means.",
       "packets": [
         {
           "id": "p2",
@@ -57,15 +37,15 @@
           "to": "decode",
           "variant": "control",
           "outcome": "pass",
-          "label": "decode"
+          "label": "read it"
         }
       ],
       "nodeCaptions": {
-        "decode": "The decoder maps the bit pattern to an operation and its operands."
+        "decode": "Decode means: turn the bits into “add”, “copy”, or another action."
       }
     },
     {
-      "caption": "Execute: do the work, then go fetch the next instruction.",
+      "caption": "Step 3 — Execute: do the work. Then go back to Fetch for the next command.",
       "packets": [
         {
           "id": "p3",
@@ -73,7 +53,7 @@
           "to": "execute",
           "variant": "control",
           "outcome": "pass",
-          "label": "run"
+          "label": "do it"
         },
         {
           "id": "p4",
@@ -85,27 +65,49 @@
         }
       ],
       "nodeCaptions": {
-        "execute": "ALU, registers, memory writes — this is where the effect happens.",
-        "mem": "Then the cycle repeats. Billions of times per second."
+        "execute": "Execute means: actually do the action.",
+        "mem": "Then the loop starts again — billions of times each second."
       }
     }
   ],
   "takeaways": [
-    "Programs are streams of instructions the CPU fetches one (or a few) at a time.",
-    "Fetch → decode → execute is the loop underneath every language you write.",
-    "“Running code” is mostly this cycle, over and over."
+    "The CPU repeats: Fetch → Decode → Execute.",
+    "Fetch = get the next command. Decode = read it. Execute = do it.",
+    "Your apps run because this loop never stops."
   ],
   "quiz": [
     {
-      "question": "What does the CPU do after it executes an instruction?",
+      "question": "What are the 3 steps the CPU repeats?",
       "choices": [
-        "Shut down until you press a key",
-        "Fetch the next instruction and keep going",
-        "Delete the program from memory",
-        "Wait for the disk to approve it"
+        "Save, sleep, wake",
+        "Fetch, decode, execute",
+        "Click, type, scroll",
+        "Open, close, delete"
       ],
       "correctIndex": 1,
-      "explanation": "The cycle continues until the program ends, blocks, or the machine stops."
+      "explanation": "Fetch (get), decode (read), execute (do) — then repeat."
+    },
+    {
+      "question": "What does Fetch mean?",
+      "choices": [
+        "Delete the program",
+        "Get the next command from memory",
+        "Turn the computer off",
+        "Draw on the screen"
+      ],
+      "correctIndex": 1,
+      "explanation": "Fetch pulls the next command from memory."
+    },
+    {
+      "question": "After Execute, what happens next?",
+      "choices": [
+        "The CPU stops forever",
+        "It goes back and Fetches the next command",
+        "It erases memory",
+        "It waits for Wi‑Fi"
+      ],
+      "correctIndex": 1,
+      "explanation": "The loop continues: fetch the next command and keep going."
     }
   ]
 }

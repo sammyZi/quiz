@@ -4,7 +4,11 @@ import { theme } from '../theme/theme';
 import {
   ByteIcon,
   CpuIcon,
+  DecodeIcon,
   DiskIcon,
+  ExecuteIcon,
+  FetchIcon,
+  MemoryBoxIcon,
   NumberIcon,
   OpcodeIcon,
   RamIcon,
@@ -19,7 +23,18 @@ type NodeShapeProps = {
   active?: boolean;
 };
 
-type IconKey = 'cpu' | 'ram' | 'disk' | 'byte' | 'number' | 'text' | 'opcode';
+type IconKey =
+  | 'cpu'
+  | 'ram'
+  | 'disk'
+  | 'byte'
+  | 'number'
+  | 'text'
+  | 'opcode'
+  | 'mem'
+  | 'fetch'
+  | 'decode'
+  | 'execute';
 
 const ICON_ROLE: Partial<Record<IconKey, string>> = {
   cpu: 'does work',
@@ -29,6 +44,24 @@ const ICON_ROLE: Partial<Record<IconKey, string>> = {
   number: 'number code',
   text: 'letter code',
   opcode: 'command code',
+  mem: 'holds commands',
+  fetch: 'get next',
+  decode: 'read it',
+  execute: 'do it',
+};
+
+const ICON_FILL: Partial<Record<IconKey, string>> = {
+  mem: theme.light.tint.sky,
+  fetch: theme.light.tint.sun,
+  decode: theme.light.tint.lilac,
+  execute: theme.light.tint.mint,
+  byte: theme.light.tint.cream,
+  number: theme.light.tint.mint,
+  text: theme.light.tint.sky,
+  opcode: theme.light.tint.lilac,
+  cpu: theme.light.tint.sun,
+  ram: theme.light.tint.mint,
+  disk: theme.light.tint.peach,
 };
 
 const KIND_FILL: Partial<Record<NodeKind, string>> = {
@@ -45,14 +78,22 @@ const KIND_FILL: Partial<Record<NodeKind, string>> = {
 };
 
 function resolveIcon(label: string, nodeId?: string): IconKey | null {
-  const key = `${nodeId ?? ''} ${label}`.toLowerCase();
+  const id = (nodeId ?? '').toLowerCase();
+  const key = `${id} ${label}`.toLowerCase();
+
+  // CPU cycle nodes first (before generic “memory” → RAM)
+  if (id === 'mem' || id === 'memory') return 'mem';
+  if (id === 'fetch' || /\bfetch\b/.test(key)) return 'fetch';
+  if (id === 'decode' || /\bdecode\b/.test(key)) return 'decode';
+  if (id === 'execute' || /\bexecute\b/.test(key)) return 'execute';
+
   if (/\b(cpu|processor)\b/.test(key)) return 'cpu';
-  if (/\b(ram|memory)\b/.test(key) && !/\b(binary|byte)\b/.test(key)) return 'ram';
+  if (/\b(ram)\b/.test(key)) return 'ram';
   if (/\b(disk|ssd|hdd|storage)\b/.test(key)) return 'disk';
-  if (/\b(byte|bits?)\b/.test(key) || nodeId === 'byte') return 'byte';
-  if (/\b(number|num|integer)\b/.test(key) || nodeId === 'as-num') return 'number';
-  if (/\b(text|letter|ascii|char)\b/.test(key) || nodeId === 'as-text') return 'text';
-  if (/\b(opcode|op|instruction)\b/.test(key) || nodeId === 'as-op') return 'opcode';
+  if (/\b(byte|bits?)\b/.test(key) || id === 'byte') return 'byte';
+  if (/\b(number|num|integer)\b/.test(key) || id === 'as-num') return 'number';
+  if (/\b(text|letter|ascii|char)\b/.test(key) || id === 'as-text') return 'text';
+  if (/\b(opcode|op|instruction)\b/.test(key) || id === 'as-op') return 'opcode';
   return null;
 }
 
@@ -65,6 +106,10 @@ function Device({ kind, label, nodeId }: { kind: NodeKind; label: string; nodeId
   if (icon === 'number') return <NumberIcon size={34} />;
   if (icon === 'text') return <TextIcon size={34} />;
   if (icon === 'opcode') return <OpcodeIcon size={34} />;
+  if (icon === 'mem') return <MemoryBoxIcon size={34} />;
+  if (icon === 'fetch') return <FetchIcon size={34} />;
+  if (icon === 'decode') return <DecodeIcon size={34} />;
+  if (icon === 'execute') return <ExecuteIcon size={34} />;
 
   if (kind === 'client') {
     return (
@@ -132,10 +177,10 @@ export function NodeShape({ kind, label, nodeId, selected, active }: NodeShapePr
   const role = icon ? (ICON_ROLE[icon] ?? null) : null;
   const dimmed = !active && !selected;
 
-  const activeFill = icon
-    ? theme.light.tint.sun
-    : (KIND_FILL[kind] ?? theme.light.tint.sun);
-  const fill = dimmed ? theme.light.bgDeep : activeFill;
+  const activeFill =
+    (icon && ICON_FILL[icon]) || KIND_FILL[kind] || theme.light.tint.sun;
+  // Inactive stays light so labels stay readable (no dark “empty” card).
+  const fill = dimmed ? theme.light.surface : activeFill;
 
   return (
     <View
@@ -150,11 +195,21 @@ export function NodeShape({ kind, label, nodeId, selected, active }: NodeShapePr
       <View style={dimmed ? styles.dimIcon : null}>
         <Device kind={kind} label={label} nodeId={nodeId} />
       </View>
-      <Text style={[styles.label, dimmed && styles.inactiveText]} numberOfLines={1}>
+      <Text
+        style={[styles.label, dimmed && styles.inactiveText]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
+        minimumFontScale={0.75}
+      >
         {label}
       </Text>
       {role ? (
-        <Text style={[styles.role, dimmed && styles.inactiveText]} numberOfLines={1}>
+        <Text
+          style={[styles.role, dimmed && styles.inactiveText]}
+          numberOfLines={1}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+        >
           {role}
         </Text>
       ) : null}
@@ -164,21 +219,22 @@ export function NodeShape({ kind, label, nodeId, selected, active }: NodeShapePr
 
 const styles = StyleSheet.create({
   card: {
-    width: 88,
-    height: 96,
+    width: 96,
+    height: 100,
     borderRadius: 20,
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 4,
     paddingBottom: 4,
-    gap: 1,
+    paddingHorizontal: 6,
+    gap: 2,
   },
   active: {
     borderColor: theme.light.ink,
   },
   inactive: {
-    borderColor: 'rgba(45,38,64,0.22)',
+    borderColor: 'rgba(45,38,64,0.35)',
   },
   selected: {
     borderColor: theme.light.ink,
@@ -186,21 +242,25 @@ const styles = StyleSheet.create({
     backgroundColor: theme.light.tint.lilac,
   },
   dimIcon: {
-    opacity: 0.4,
+    opacity: 0.55,
   },
   inactiveText: {
-    color: theme.light.muted,
+    color: theme.light.ink,
+    opacity: 0.7,
   },
   label: {
+    width: '100%',
     fontFamily: theme.font.display,
-    fontSize: 13,
+    fontSize: 11,
     color: theme.light.ink,
-    paddingHorizontal: 4,
+    textAlign: 'center',
   },
   role: {
+    width: '100%',
     fontFamily: theme.font.mono,
-    fontSize: 10,
+    fontSize: 9,
     color: theme.light.muted,
+    textAlign: 'center',
   },
 });
 
@@ -332,9 +392,11 @@ const device = StyleSheet.create({
     fontWeight: '700',
   },
   generic: {
-    width: 36,
-    height: 36,
-    borderRadius: 12,
-    backgroundColor: theme.light.ink,
+    width: 28,
+    height: 28,
+    borderRadius: 10,
+    backgroundColor: theme.light.tint.lilac,
+    borderWidth: 2,
+    borderColor: theme.light.ink,
   },
 });

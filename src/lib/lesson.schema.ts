@@ -77,6 +77,8 @@ export const lessonSchema = z
     module: z.string(),
     title: z.string(),
     hook: z.string(),
+    /** tree = fan-out (root over children). omit = row / pipeline wires */
+    diagram: z.enum(['tree']).optional(),
     nodes: z.array(nodeSchema).min(2),
     steps: z.array(stepSchema).min(1),
     takeaways: z.array(z.string()).min(2).max(3),

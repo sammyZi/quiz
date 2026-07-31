@@ -4,6 +4,7 @@
   "module": "cpu",
   "title": "Binary & data representation",
   "hook": "A computer saves everything as tiny on/off switches: 0 or 1. The switches stay the same. The meaning changes when we read them with a different code.",
+  "diagram": "tree",
   "nodes": [
     { "id": "byte", "label": "Pattern", "kind": "generic", "lane": 0 },
     { "id": "as-num", "label": "Number", "kind": "generic", "lane": 1 },

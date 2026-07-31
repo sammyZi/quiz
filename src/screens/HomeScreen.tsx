@@ -72,7 +72,7 @@ export function HomeScreen() {
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.mascotRow}>
-          <RiveCharacter mood="idle" size={88} animated={false} />
+          <RiveCharacter mood={doneCount === 0 ? 'wave' : 'idle'} size={96} />
           <View style={styles.mascotCopy}>
             <Text style={styles.mascotHi}>{doneCount === 0 ? 'Ready when you are' : 'Keep going'}</Text>
             <Text style={styles.mascotSub}>

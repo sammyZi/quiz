@@ -4,9 +4,9 @@ import type { Lesson, LessonNode, Packet } from '../lib/lesson.schema';
 import { theme } from '../theme/theme';
 import { NodeShape } from './NodeShape';
 
-const NODE_W = 88;
-const NODE_H = 96;
-const ROW_H = 118;
+const NODE_W = 96;
+const NODE_H = 100;
+const ROW_H = 120;
 const PACKET_H = 28;
 
 const PACKET_FILL: Record<Packet['variant'], string> = {
@@ -19,8 +19,9 @@ const PACKET_FILL: Record<Packet['variant'], string> = {
 };
 
 function packetWidth(label?: string) {
-  const len = Math.min(14, (label ?? '•').length);
-  return Math.max(44, 18 + len * 8);
+  const text = label ?? '•';
+  // mono 11 + padding/border — keep room so labels never ellipsize
+  return Math.max(52, 28 + text.length * 8);
 }
 
 type Point = { x: number; y: number };
@@ -48,11 +49,44 @@ function placeNodes(nodes: LessonNode[]): { placed: Placed[]; rows: number; cols
   };
 }
 
-function isTreeLayout(placed: Placed[], rows: number) {
-  if (rows !== 2) return false;
+function isTreeLayout(placed: Placed[], rows: number, diagram?: Lesson['diagram']) {
+  if (diagram !== 'tree' || rows !== 2) return false;
   const tops = placed.filter((n) => n.row === 0);
   const bottoms = placed.filter((n) => n.row === 1);
   return tops.length === 1 && bottoms.length >= 2;
+}
+
+/** Stem from lone top node down to the first bottom node (pipeline, not fan-out). */
+function PipelineStem({
+  root,
+  firstLeaf,
+  centreOf,
+}: {
+  root: Placed;
+  firstLeaf: Placed;
+  centreOf: (n: Placed) => Point;
+}) {
+  const a = centreOf(root);
+  const b = centreOf(firstLeaf);
+  const top = a.y + NODE_H / 2 + 2;
+  const bottom = b.y - NODE_H / 2 - 2;
+  const midY = (top + bottom) / 2;
+  const left = Math.min(a.x, b.x);
+  const right = Math.max(a.x, b.x);
+  return (
+    <>
+      <View style={[styles.treeStem, { left: a.x - 1, top, height: Math.max(4, midY - top) }]} />
+      {Math.abs(right - left) > 2 ? (
+        <View style={[styles.treeBar, { left, top: midY - 1, width: right - left }]} />
+      ) : null}
+      <View
+        style={[
+          styles.treeStem,
+          { left: b.x - 1, top: midY, height: Math.max(4, bottom - midY) },
+        ]}
+      />
+    </>
+  );
 }
 
 function PacketDot({
@@ -73,9 +107,8 @@ function PacketDot({
   label?: string;
 }) {
   const travel = useRef(new Animated.Value(0)).current;
-  const w = packetWidth(label);
-  const tag =
-    label && label.length <= 14 ? label : label ? `${label.slice(0, 12)}…` : '•';
+  const tag = label?.trim() || '•';
+  const w = packetWidth(tag);
 
   useEffect(() => {
     travel.setValue(0);
@@ -122,7 +155,7 @@ function PacketDot({
       ]}
       pointerEvents="none"
     >
-      <Text style={styles.packetText} numberOfLines={1}>
+      <Text style={styles.packetText} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.75}>
         {blocked ? '✕' : tag}
       </Text>
     </Animated.View>
@@ -174,7 +207,12 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
 
   const step = lesson.steps[stepIndex];
   const { placed, rows, cols } = useMemo(() => placeNodes(lesson.nodes), [lesson.nodes]);
-  const tree = isTreeLayout(placed, rows);
+  const tree = isTreeLayout(placed, rows, lesson.diagram);
+  const pipeline =
+    !tree &&
+    rows === 2 &&
+    placed.filter((n) => n.row === 0).length === 1 &&
+    placed.filter((n) => n.row === 1).length >= 2;
 
   useEffect(() => {
     setSelectedNode(null);
@@ -245,6 +283,10 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
       >
         {width > 0 && tree && root ? (
           <TreeWires root={root} leaves={leaves} centreOf={centreOf} />
+        ) : null}
+
+        {width > 0 && pipeline && root && leaves[0] ? (
+          <PipelineStem root={root} firstLeaf={leaves[0]} centreOf={centreOf} />
         ) : null}
 
         {width > 0 &&
