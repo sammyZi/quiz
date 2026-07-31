@@ -1,6 +1,6 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../components/AppHeader';
@@ -58,6 +58,14 @@ export function LessonScreen() {
     setShowDone(true);
   };
 
+  const goNextLesson = useCallback(() => {
+    if (nextLesson) {
+      navigation.replace('Lesson', { lessonId: nextLesson.id });
+    } else {
+      navigation.goBack();
+    }
+  }, [navigation, nextLesson]);
+
   return (
     <View style={styles.container}>
       <AppHeader title={lesson.title} onBack={navigation.goBack} />
@@ -79,6 +87,9 @@ export function LessonScreen() {
             >
               <Text style={[styles.progressText, (active || done) && styles.progressTextOn]}>
                 {labels[i]}
+                {key === 'watch' && phase === 'watch'
+                  ? ` ${stepIndex + 1}/${lesson.steps.length}`
+                  : ''}
               </Text>
               {active ? <View style={styles.progressDot} /> : null}
             </Pressable>
@@ -94,9 +105,6 @@ export function LessonScreen() {
       >
         {phase === 'watch' ? (
           <>
-            <Text style={styles.stepMeta}>
-              {stepIndex + 1}/{lesson.steps.length}
-            </Text>
             {stepIndex === 0 ? <Text style={styles.hook}>{lesson.hook}</Text> : null}
             <PacketFlow lesson={lesson} stepIndex={stepIndex} />
           </>
@@ -204,13 +212,9 @@ export function LessonScreen() {
 
       {showDone ? (
         <DonePopup
-          score={`${correctCount}/${lesson.quiz.length} correct`}
-          onNext={
-            nextLesson
-              ? () => navigation.replace('Lesson', { lessonId: nextLesson.id })
-              : undefined
-          }
-          onClose={() => navigation.goBack()}
+          hasNext={!!nextLesson}
+          onNext={goNextLesson}
+          onDone={() => navigation.goBack()}
         />
       ) : null}
     </View>
@@ -229,6 +233,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.md,
     paddingBottom: theme.spacing.lg,
+  },
+  hook: {
+    fontFamily: theme.font.body,
+    fontSize: 16,
+    color: theme.light.muted,
+    lineHeight: 24,
+    marginBottom: theme.spacing.md,
   },
   missing: {
     fontFamily: theme.font.body,
@@ -263,19 +274,6 @@ const styles = StyleSheet.create({
     height: 3,
     borderRadius: 2,
     backgroundColor: theme.light.ink,
-  },
-  stepMeta: {
-    fontFamily: theme.font.mono,
-    fontSize: theme.fontSize.caption,
-    color: theme.light.muted,
-    marginBottom: theme.spacing.sm,
-  },
-  hook: {
-    fontFamily: theme.font.display,
-    fontSize: 20,
-    color: theme.light.ink,
-    lineHeight: 28,
-    marginBottom: theme.spacing.lg,
   },
   title: {
     fontFamily: theme.font.display,

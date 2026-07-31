@@ -25,10 +25,10 @@ const ICON_ROLE: Partial<Record<IconKey, string>> = {
   cpu: 'does work',
   ram: 'fast memory',
   disk: 'saved files',
-  byte: 'raw bits',
-  number: 'as number',
-  text: 'as letter',
-  opcode: 'as instruction',
+  byte: '0 / 1',
+  number: 'number code',
+  text: 'letter code',
+  opcode: 'command code',
 };
 
 const KIND_FILL: Partial<Record<NodeKind, string>> = {
@@ -58,13 +58,13 @@ function resolveIcon(label: string, nodeId?: string): IconKey | null {
 
 function Device({ kind, label, nodeId }: { kind: NodeKind; label: string; nodeId?: string }) {
   const icon = resolveIcon(label, nodeId);
-  if (icon === 'cpu') return <CpuIcon size={40} />;
-  if (icon === 'ram') return <RamIcon size={40} />;
-  if (icon === 'disk') return <DiskIcon size={40} />;
-  if (icon === 'byte') return <ByteIcon size={40} />;
-  if (icon === 'number') return <NumberIcon size={40} />;
-  if (icon === 'text') return <TextIcon size={40} />;
-  if (icon === 'opcode') return <OpcodeIcon size={40} />;
+  if (icon === 'cpu') return <CpuIcon size={34} />;
+  if (icon === 'ram') return <RamIcon size={34} />;
+  if (icon === 'disk') return <DiskIcon size={34} />;
+  if (icon === 'byte') return <ByteIcon size={34} />;
+  if (icon === 'number') return <NumberIcon size={34} />;
+  if (icon === 'text') return <TextIcon size={34} />;
+  if (icon === 'opcode') return <OpcodeIcon size={34} />;
 
   if (kind === 'client') {
     return (
@@ -129,25 +129,32 @@ function Device({ kind, label, nodeId }: { kind: NodeKind; label: string; nodeId
 
 export function NodeShape({ kind, label, nodeId, selected, active }: NodeShapeProps) {
   const icon = resolveIcon(label, nodeId);
-  const fill = icon ? theme.light.surface : (KIND_FILL[kind] ?? theme.light.tint.cream);
   const role = icon ? (ICON_ROLE[icon] ?? null) : null;
+  const dimmed = !active && !selected;
+
+  const activeFill = icon
+    ? theme.light.tint.sun
+    : (KIND_FILL[kind] ?? theme.light.tint.sun);
+  const fill = dimmed ? theme.light.bgDeep : activeFill;
 
   return (
     <View
       style={[
         styles.card,
-        theme.clay.soft,
+        !dimmed && theme.clay.soft,
         { backgroundColor: fill },
+        dimmed ? styles.inactive : styles.active,
         selected && styles.selected,
-        active && styles.active,
       ]}
     >
-      <Device kind={kind} label={label} nodeId={nodeId} />
-      <Text style={styles.label} numberOfLines={1}>
+      <View style={dimmed ? styles.dimIcon : null}>
+        <Device kind={kind} label={label} nodeId={nodeId} />
+      </View>
+      <Text style={[styles.label, dimmed && styles.inactiveText]} numberOfLines={1}>
         {label}
       </Text>
       {role ? (
-        <Text style={styles.role} numberOfLines={1}>
+        <Text style={[styles.role, dimmed && styles.inactiveText]} numberOfLines={1}>
           {role}
         </Text>
       ) : null}
@@ -157,24 +164,32 @@ export function NodeShape({ kind, label, nodeId, selected, active }: NodeShapePr
 
 const styles = StyleSheet.create({
   card: {
-    width: 96,
-    height: 108,
-    borderRadius: 22,
-    borderWidth: 1.5,
-    borderColor: 'rgba(255,255,255,0.95)',
+    width: 88,
+    height: 96,
+    borderRadius: 20,
+    borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: 6,
-    paddingBottom: 6,
-    gap: 2,
+    paddingTop: 4,
+    paddingBottom: 4,
+    gap: 1,
+  },
+  active: {
+    borderColor: theme.light.ink,
+  },
+  inactive: {
+    borderColor: 'rgba(45,38,64,0.22)',
   },
   selected: {
     borderColor: theme.light.ink,
     borderWidth: 2.5,
+    backgroundColor: theme.light.tint.lilac,
   },
-  active: {
-    borderColor: theme.light.tint.sun,
-    borderWidth: 2.5,
+  dimIcon: {
+    opacity: 0.4,
+  },
+  inactiveText: {
+    color: theme.light.muted,
   },
   label: {
     fontFamily: theme.font.display,

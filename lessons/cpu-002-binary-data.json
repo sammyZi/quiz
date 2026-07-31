@@ -3,36 +3,16 @@
   "id": "cpu-002-binary-data",
   "module": "cpu",
   "title": "Binary & data representation",
-  "hook": "A byte is just eight bits. What those bits mean depends entirely on who is reading them.",
+  "hook": "A computer saves everything as tiny on/off switches: 0 or 1. The switches stay the same. The meaning changes when we read them with a different code.",
   "nodes": [
-    {
-      "id": "byte",
-      "label": "1 byte",
-      "kind": "generic",
-      "lane": 0
-    },
-    {
-      "id": "as-num",
-      "label": "Number",
-      "kind": "generic",
-      "lane": 0
-    },
-    {
-      "id": "as-text",
-      "label": "Text",
-      "kind": "generic",
-      "lane": 1
-    },
-    {
-      "id": "as-op",
-      "label": "Opcode",
-      "kind": "generic",
-      "lane": 0
-    }
+    { "id": "byte", "label": "Pattern", "kind": "generic", "lane": 0 },
+    { "id": "as-num", "label": "Number", "kind": "generic", "lane": 1 },
+    { "id": "as-text", "label": "Letter", "kind": "generic", "lane": 1 },
+    { "id": "as-op", "label": "Command", "kind": "generic", "lane": 1 }
   ],
   "steps": [
     {
-      "caption": "Here’s one byte — the same eight bits, sitting still.",
+      "caption": "Look at this pattern of switches: 01000001. Use the number code → it means 65.",
       "packets": [
         {
           "id": "p1",
@@ -44,12 +24,12 @@
         }
       ],
       "nodeCaptions": {
-        "byte": "Bits don’t come with a label. Meaning is assigned by the program.",
-        "as-num": "Read as an integer, this might be 65."
+        "byte": "Just a pattern of 0 and 1. Like lights on a row of switches.",
+        "as-num": "Number code says: this pattern = 65."
       }
     },
     {
-      "caption": "Read the same bits as text (ASCII/UTF-8) and you get the letter A.",
+      "caption": "Same pattern: 01000001. Do not change the switches. Use the letter code → it means A.",
       "packets": [
         {
           "id": "p2",
@@ -57,15 +37,15 @@
           "to": "as-text",
           "variant": "data",
           "outcome": "pass",
-          "label": "\"A\""
+          "label": "01000001"
         }
       ],
       "nodeCaptions": {
-        "as-text": "Encodings map bit patterns to characters. Same bits, different agreement."
+        "as-text": "Letter code says: this pattern = A. The switches did not change."
       }
     },
     {
-      "caption": "Hand those bits to the CPU as an instruction and they become an operation to run.",
+      "caption": "Same pattern again. Use the command code → the CPU runs a step. Still the same switches.",
       "packets": [
         {
           "id": "p3",
@@ -73,30 +53,74 @@
           "to": "as-op",
           "variant": "control",
           "outcome": "pass",
-          "label": "op"
+          "label": "01000001"
         }
       ],
       "nodeCaptions": {
-        "as-op": "Machine code is still just bits — the CPU’s decoder decides what they mean."
+        "as-op": "Command code says: this pattern = a step for the CPU to run."
       }
     }
   ],
   "takeaways": [
-    "Bits are raw. Types, encodings, and instruction sets are agreements about meaning.",
-    "The same byte can be a number, a letter, or an instruction depending on context.",
-    "Bugs often come from reading bits with the wrong agreement."
+    "Computers store 0 and 1 — on/off switches.",
+    "Same pattern can mean 65, or A, or a CPU step.",
+    "The pattern stays. The code you use to read it changes the meaning."
   ],
   "quiz": [
     {
-      "question": "What decides whether a byte is a number or a letter?",
+      "question": "What two values does a computer use to store everything?",
       "choices": [
-        "The hardware permanently stamps it",
-        "The program’s agreement about how to interpret those bits",
-        "Bytes that look like letters can’t be numbers",
-        "Only UTF-8 files contain letters"
+        "Yes and no words",
+        "0 and 1",
+        "Only A to Z",
+        "Only 1 to 100"
       ],
       "correctIndex": 1,
-      "explanation": "Representation is interpretation. Nothing in the byte itself says “I am text.”"
+      "explanation": "A computer stores everything as 0 and 1 — like tiny on/off switches."
+    },
+    {
+      "question": "The pattern 01000001 can mean 65 or the letter A. What changed?",
+      "choices": [
+        "The switches flipped",
+        "We used a different code to read the same pattern",
+        "The phone got faster",
+        "Wi‑Fi changed it"
+      ],
+      "correctIndex": 1,
+      "explanation": "Same pattern. Different code. That is why the meaning changes."
+    },
+    {
+      "question": "If you do not change the pattern, can it still mean something new?",
+      "choices": [
+        "No — one pattern, one meaning forever",
+        "Yes — a new code can give it a new meaning",
+        "Only after you restart the phone",
+        "Only if you copy it twice"
+      ],
+      "correctIndex": 1,
+      "explanation": "The pattern can stay the same. The code you use to read it can change the meaning."
+    },
+    {
+      "question": "In this lesson, what does the Number branch mean?",
+      "choices": [
+        "Read the pattern as a number",
+        "Delete the pattern",
+        "Send the pattern to Wi‑Fi",
+        "Turn the pattern into a photo"
+      ],
+      "correctIndex": 0,
+      "explanation": "Number code reads the pattern as a number — like 65."
+    },
+    {
+      "question": "What does the Letter branch do with the same pattern?",
+      "choices": [
+        "Throws the pattern away",
+        "Reads it as a letter, like A",
+        "Makes the CPU hotter",
+        "Changes 0 into 2"
+      ],
+      "correctIndex": 1,
+      "explanation": "Letter code reads the same pattern as a letter."
     }
   ]
 }

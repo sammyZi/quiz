@@ -4,10 +4,10 @@ import type { Lesson, LessonNode, Packet } from '../lib/lesson.schema';
 import { theme } from '../theme/theme';
 import { NodeShape } from './NodeShape';
 
-const NODE_W = 96;
-const NODE_H = 108;
-const ROW_H = 132;
-const PACKET = 18;
+const NODE_W = 88;
+const NODE_H = 96;
+const ROW_H = 118;
+const PACKET_H = 28;
 
 const PACKET_FILL: Record<Packet['variant'], string> = {
   request: theme.light.tint.lilac,
@@ -18,21 +18,41 @@ const PACKET_FILL: Record<Packet['variant'], string> = {
   control: theme.light.tint.sun,
 };
 
+function packetWidth(label?: string) {
+  const len = Math.min(14, (label ?? '•').length);
+  return Math.max(44, 18 + len * 8);
+}
+
 type Point = { x: number; y: number };
 type Placed = LessonNode & { col: number; row: number };
 
+/** Lane = row. Nodes in a short row are centred (tree root over children). */
 function placeNodes(nodes: LessonNode[]): { placed: Placed[]; rows: number; cols: number } {
-  const perLane = new Map<number, number>();
+  const counts = new Map<number, number>();
+  for (const node of nodes) {
+    counts.set(node.lane, (counts.get(node.lane) ?? 0) + 1);
+  }
+  const cols = Math.max(1, ...counts.values());
+  const seen = new Map<number, number>();
   const placed = nodes.map((node) => {
-    const col = perLane.get(node.lane) ?? 0;
-    perLane.set(node.lane, col + 1);
-    return { ...node, col, row: node.lane };
+    const index = seen.get(node.lane) ?? 0;
+    seen.set(node.lane, index + 1);
+    const inLane = counts.get(node.lane) ?? 1;
+    const offset = (cols - inLane) / 2;
+    return { ...node, col: index + offset, row: node.lane };
   });
   return {
     placed,
     rows: Math.max(...placed.map((n) => n.row)) + 1,
-    cols: Math.max(...placed.map((n) => n.col)) + 1,
+    cols,
   };
+}
+
+function isTreeLayout(placed: Placed[], rows: number) {
+  if (rows !== 2) return false;
+  const tops = placed.filter((n) => n.row === 0);
+  const bottoms = placed.filter((n) => n.row === 1);
+  return tops.length === 1 && bottoms.length >= 2;
 }
 
 function PacketDot({
@@ -42,6 +62,7 @@ function PacketDot({
   blocked,
   delay,
   replayKey,
+  label,
 }: {
   from: Point;
   to: Point;
@@ -49,8 +70,12 @@ function PacketDot({
   blocked: boolean;
   delay: number;
   replayKey: number;
+  label?: string;
 }) {
   const travel = useRef(new Animated.Value(0)).current;
+  const w = packetWidth(label);
+  const tag =
+    label && label.length <= 14 ? label : label ? `${label.slice(0, 12)}…` : '•';
 
   useEffect(() => {
     travel.setValue(0);
@@ -67,7 +92,7 @@ function PacketDot({
         ])
       : Animated.timing(travel, {
           toValue: 1,
-          duration: 900,
+          duration: 1000,
           delay,
           easing: Easing.inOut(Easing.quad),
           useNativeDriver: true,
@@ -84,18 +109,61 @@ function PacketDot({
     <Animated.View
       style={[
         styles.packet,
-        { backgroundColor: PACKET_FILL[variant] },
+        {
+          width: w,
+          backgroundColor: PACKET_FILL[variant],
+        },
         {
           transform: [
-            { translateX: interpolate(from.x - PACKET / 2, to.x - PACKET / 2) },
-            { translateY: interpolate(from.y - PACKET / 2, to.y - PACKET / 2) },
+            { translateX: interpolate(from.x - w / 2, to.x - w / 2) },
+            { translateY: interpolate(from.y - PACKET_H / 2, to.y - PACKET_H / 2) },
           ],
         },
       ]}
       pointerEvents="none"
     >
-      {blocked ? <Text style={styles.packetX}>✕</Text> : null}
+      <Text style={styles.packetText} numberOfLines={1}>
+        {blocked ? '✕' : tag}
+      </Text>
     </Animated.View>
+  );
+}
+
+function TreeWires({
+  root,
+  leaves,
+  centreOf,
+}: {
+  root: Placed;
+  leaves: Placed[];
+  centreOf: (n: Placed) => Point;
+}) {
+  const r = centreOf(root);
+  const kids = leaves.map(centreOf);
+  const barY = (r.y + NODE_H / 2 + kids[0].y - NODE_H / 2) / 2;
+  const left = Math.min(...kids.map((k) => k.x));
+  const right = Math.max(...kids.map((k) => k.x));
+  const stemTop = r.y + NODE_H / 2 + 2;
+  const stemH = Math.max(4, barY - stemTop);
+
+  return (
+    <>
+      <View style={[styles.treeStem, { left: r.x - 1, top: stemTop, height: stemH }]} />
+      <View style={[styles.treeBar, { left, top: barY - 1, width: Math.max(2, right - left) }]} />
+      {kids.map((k, i) => (
+        <View
+          key={leaves[i].id}
+          style={[
+            styles.treeStem,
+            {
+              left: k.x - 1,
+              top: barY,
+              height: Math.max(4, k.y - NODE_H / 2 - barY),
+            },
+          ]}
+        />
+      ))}
+    </>
   );
 }
 
@@ -106,6 +174,7 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
 
   const step = lesson.steps[stepIndex];
   const { placed, rows, cols } = useMemo(() => placeNodes(lesson.nodes), [lesson.nodes]);
+  const tree = isTreeLayout(placed, rows);
 
   useEffect(() => {
     setSelectedNode(null);
@@ -151,9 +220,20 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
     ? (step.nodeCaptions[selectedNode] ?? labelOf(selectedNode))
     : step.caption;
 
-  const oneLine =
-    step.packets[0]?.label ??
-    `${labelOf(step.packets[0]?.from ?? '')} → ${labelOf(step.packets[0]?.to ?? '')}`;
+  const dest = step.packets[0]
+    ? labelOf(
+        step.packets[0].outcome === 'blocked' && step.packets[0].stopsAt
+          ? step.packets[0].stopsAt
+          : step.packets[0].to
+      )
+    : '';
+  const oneLine = tree
+    ? `${step.packets[0]?.label ?? 'pattern'} → ${dest}`
+    : (step.packets[0]?.label ??
+      `${labelOf(step.packets[0]?.from ?? '')} → ${labelOf(step.packets[0]?.to ?? '')}`);
+
+  const root = placed.find((n) => n.row === 0);
+  const leaves = placed.filter((n) => n.row === 1);
 
   return (
     <View>
@@ -163,12 +243,17 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
         style={[styles.stage, { height: rows * ROW_H }]}
         onLayout={(e) => setWidth(e.nativeEvent.layout.width)}
       >
+        {width > 0 && tree && root ? (
+          <TreeWires root={root} leaves={leaves} centreOf={centreOf} />
+        ) : null}
+
         {width > 0 &&
+          !tree &&
           Array.from({ length: rows }, (_, row) => {
             const inRow = placed.filter((n) => n.row === row);
             if (inRow.length < 2) return null;
-            const left = colWidth * 0.5;
-            const right = colWidth * (inRow.length - 0.5);
+            const left = colWidth * (Math.min(...inRow.map((n) => n.col)) + 0.5);
+            const right = colWidth * (Math.max(...inRow.map((n) => n.col)) + 0.5);
             return (
               <View
                 key={`wire-${row}`}
@@ -192,7 +277,6 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
                   {
                     left: centre.x - NODE_W / 2,
                     top: centre.y - NODE_H / 2,
-                    opacity: active || selectedNode === node.id ? 1 : 0.7,
                   },
                 ]}
               >
@@ -201,7 +285,7 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
                   label={node.label}
                   nodeId={node.id}
                   selected={selectedNode === node.id}
-                  active={active}
+                  active={active || selectedNode === node.id}
                 />
               </Pressable>
             );
@@ -224,16 +308,18 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
                 blocked={packet.outcome === 'blocked'}
                 delay={index * 320}
                 replayKey={replayKey}
+                label={packet.label}
               />
             );
           })}
       </View>
 
-      {!selectedNode ? <Text style={styles.oneLine}>{oneLine}</Text> : null}
-
-      <Pressable onPress={() => setReplayKey((k) => k + 1)} hitSlop={8}>
-        <Text style={styles.replay}>Replay move</Text>
-      </Pressable>
+      <View style={styles.footerRow}>
+        {!selectedNode ? <Text style={styles.oneLine}>{oneLine}</Text> : <View />}
+        <Pressable onPress={() => setReplayKey((k) => k + 1)} hitSlop={8}>
+          <Text style={styles.replay}>Replay</Text>
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -241,10 +327,10 @@ export function PacketFlow({ lesson, stepIndex }: { lesson: Lesson; stepIndex: n
 const styles = StyleSheet.create({
   story: {
     fontFamily: theme.font.body,
-    fontSize: 18,
+    fontSize: 17,
     color: theme.light.ink,
-    lineHeight: 28,
-    marginBottom: theme.spacing.lg,
+    lineHeight: 26,
+    marginBottom: theme.spacing.md,
   },
   stage: {
     position: 'relative',
@@ -257,6 +343,20 @@ const styles = StyleSheet.create({
     opacity: 0.12,
     borderRadius: 2,
   },
+  treeStem: {
+    position: 'absolute',
+    width: 2,
+    backgroundColor: theme.light.ink,
+    opacity: 0.28,
+    borderRadius: 1,
+  },
+  treeBar: {
+    position: 'absolute',
+    height: 2,
+    backgroundColor: theme.light.ink,
+    opacity: 0.28,
+    borderRadius: 1,
+  },
   nodeWrap: {
     position: 'absolute',
     width: NODE_W,
@@ -264,24 +364,31 @@ const styles = StyleSheet.create({
   },
   packet: {
     position: 'absolute',
-    width: PACKET,
-    height: PACKET,
+    height: PACKET_H,
+    minWidth: 44,
+    paddingHorizontal: 8,
     borderWidth: 2,
-    borderColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 7,
+    borderColor: theme.light.ink,
+    borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  packetX: {
-    fontFamily: theme.font.display,
+  packetText: {
+    fontFamily: theme.font.mono,
     fontSize: 11,
     color: theme.light.ink,
   },
+  footerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: theme.spacing.sm,
+  },
   oneLine: {
+    flex: 1,
     fontFamily: theme.font.display,
-    fontSize: 16,
+    fontSize: 15,
     color: theme.light.ink,
-    marginBottom: theme.spacing.sm,
   },
   replay: {
     fontFamily: theme.font.body,

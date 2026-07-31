@@ -80,7 +80,7 @@ export const lessonSchema = z
     nodes: z.array(nodeSchema).min(2),
     steps: z.array(stepSchema).min(1),
     takeaways: z.array(z.string()).min(2).max(3),
-    quiz: z.array(quizQuestionSchema).min(1).max(3),
+    quiz: z.array(quizQuestionSchema).min(1).max(6),
     awsBridge: awsBridgeSchema.optional(),
   })
   .refine(
