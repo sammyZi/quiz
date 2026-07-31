@@ -205,3 +205,71 @@ export function ExecuteIcon({ size = 40 }: IconProps) {
     </Svg>
   );
 }
+
+/** Stack — neat pile of sticky notes (LIFO frames). */
+export function StackIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      {/* base plate */}
+      <Rect x={6} y={30} width={28} height={4} rx={1.5} fill={ink} />
+      {/* stacked frames — bottom to top */}
+      <Rect x={9} y={24} width={22} height={6} rx={1.5} fill={theme.light.tint.sky} stroke={ink} strokeWidth={1.5} />
+      <Rect x={9} y={17} width={22} height={6} rx={1.5} fill={theme.light.tint.mint} stroke={ink} strokeWidth={1.5} />
+      <Rect x={9} y={10} width={22} height={6} rx={1.5} fill={theme.light.tint.sun} stroke={ink} strokeWidth={1.5} />
+      {/* top “active” note fold */}
+      <Path d="M27 10 L31 10 L27 14 Z" fill={ink} />
+      <Rect x={12} y={12} width={10} height={1.5} rx={0.75} fill={ink} opacity={0.35} />
+      <Rect x={12} y={19} width={12} height={1.5} rx={0.75} fill={ink} opacity={0.35} />
+      <Rect x={12} y={26} width={8} height={1.5} rx={0.75} fill={ink} opacity={0.35} />
+    </Svg>
+  );
+}
+
+/** Heap — storage room with loose boxes (flexible lifetime). */
+export function HeapIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      {/* room */}
+      <Rect x={4} y={6} width={32} height={28} rx={5} fill={ink} />
+      <Rect x={6} y={8} width={28} height={24} rx={3} fill="#4A4260" />
+      {/* scattered boxes */}
+      <Rect x={9} y={22} width={10} height={8} rx={1.5} fill={theme.light.tint.peach} stroke={ink} strokeWidth={1.2} />
+      <Rect x={21} y={20} width={12} height={10} rx={1.5} fill={theme.light.tint.lilac} stroke={ink} strokeWidth={1.2} />
+      <Rect x={14} y={11} width={11} height={8} rx={1.5} fill={theme.light.tint.sun} stroke={ink} strokeWidth={1.2} />
+      {/* box lids / tape */}
+      <Path d="M9 25 H19" stroke={ink} strokeWidth={1.2} opacity={0.5} />
+      <Path d="M21 24 H33" stroke={ink} strokeWidth={1.2} opacity={0.5} />
+      <Path d="M14 14 H25" stroke={ink} strokeWidth={1.2} opacity={0.5} />
+    </Svg>
+  );
+}
+
+/** Your code — little script / play card. */
+export function CodeIcon({ size = 40 }: IconProps) {
+  const s = size;
+  return (
+    <Svg width={s} height={s} viewBox="0 0 40 40">
+      <Rect x={7} y={5} width={26} height={30} rx={4} fill={ink} />
+      <Rect x={10} y={8} width={20} height={24} rx={2} fill={theme.light.tint.cream} />
+      <Path
+        d="M15 14 L12 18 L15 22"
+        stroke={ink}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <Path
+        d="M25 14 L28 18 L25 22"
+        stroke={ink}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        fill="none"
+      />
+      <Rect x={17} y={25} width={6} height={2.5} rx={1} fill={ink} />
+    </Svg>
+  );
+}

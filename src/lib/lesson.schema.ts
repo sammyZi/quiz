@@ -73,7 +73,7 @@ export const lessonSchema = z
     // module-prefixed, e.g. "net-006-firewall" — never a bare global number,
     // so cutting a lesson never renumbers the ones after it
     id: z.string().regex(/^[a-z]+-\d{3}-[a-z0-9-]+$/),
-    chapter: z.union([z.literal(1), z.literal(2)]),
+    chapter: z.union([z.literal(1), z.literal(2), z.literal(3)]),
     module: z.string(),
     title: z.string(),
     hook: z.string(),

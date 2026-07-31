@@ -20,10 +20,11 @@ export function LessonCard({ lesson, onPress, complete, compact }: LessonCardPro
     >
       <BrutalCard fill={theme.light.surface}>
         <View style={styles.topRow}>
-          <Text style={styles.id}>{lesson.id}</Text>
+          <Text style={styles.title} numberOfLines={2}>
+            {lesson.title}
+          </Text>
           {complete ? <Text style={styles.done}>finished</Text> : null}
         </View>
-        <Text style={styles.title}>{lesson.title}</Text>
         {compact ? null : <Text style={styles.hook}>{lesson.hook}</Text>}
       </BrutalCard>
     </Pressable>
@@ -33,22 +34,20 @@ export function LessonCard({ lesson, onPress, complete, compact }: LessonCardPro
 const styles = StyleSheet.create({
   topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: theme.spacing.sm,
-    marginBottom: theme.spacing.sm,
-  },
-  id: {
-    flex: 1,
-    fontFamily: theme.font.mono,
-    fontSize: theme.fontSize.caption,
-    color: theme.light.muted,
+    minWidth: 0,
   },
   done: {
+    flexShrink: 0,
     fontFamily: theme.font.body,
     fontSize: theme.fontSize.caption,
     color: theme.light.muted,
   },
   title: {
+    flex: 1,
+    flexShrink: 1,
+    minWidth: 0,
     fontFamily: theme.font.display,
     fontSize: theme.fontSize.title,
     color: theme.light.ink,

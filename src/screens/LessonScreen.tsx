@@ -1,6 +1,6 @@
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppHeader } from '../components/AppHeader';
@@ -9,27 +9,80 @@ import { DonePopup } from '../components/DonePopup';
 import { PacketFlow } from '../components/PacketFlow';
 import { QuizCard } from '../components/QuizCard';
 import { getLesson, lessons } from '../lib/loadLessons';
-import { useProgress } from '../lib/progress';
+import { useProgress, type LessonPhase } from '../lib/progress';
 import type { RootStackParamList } from '../navigation/RootNavigator';
 import { theme } from '../theme/theme';
 
 type LessonRoute = RouteProp<RootStackParamList, 'Lesson'>;
 type Nav = NativeStackNavigationProp<RootStackParamList>;
-type Phase = 'watch' | 'remember' | 'quiz';
+type Phase = LessonPhase;
 
 export function LessonScreen() {
   const navigation = useNavigation<Nav>();
   const { params } = useRoute<LessonRoute>();
-  const { markComplete, isComplete } = useProgress();
+  const { ready, markComplete, isComplete, setCheckpoint, checkpoints } = useProgress();
   const scrollRef = useRef<ScrollView>(null);
   const insets = useSafeAreaInsets();
+
+  const lesson = getLesson(params.lessonId);
 
   const [phase, setPhase] = useState<Phase>('watch');
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<number, boolean>>({});
   const [showDone, setShowDone] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  const lesson = getLesson(params.lessonId);
+  // Resume where the learner left off when opening a lesson.
+  useEffect(() => {
+    setHydrated(false);
+    if (!ready) return;
+    const saved = checkpoints[params.lessonId];
+    if (saved && !isComplete(params.lessonId)) {
+      setPhase(saved.phase);
+      setStepIndex(Math.min(saved.stepIndex, Math.max(0, (lesson?.steps.length ?? 1) - 1)));
+    } else {
+      setPhase('watch');
+      setStepIndex(0);
+      setAnswers({});
+    }
+    setShowDone(false);
+    setHydrated(true);
+  }, [ready, params.lessonId]); // eslint-disable-line react-hooks/exhaustive-deps -- resume once per open
+
+  // Persist partial progress for the green fill on the Lessons list.
+  useEffect(() => {
+    if (!hydrated || !lesson || isComplete(lesson.id) || showDone) return;
+    setCheckpoint(lesson.id, {
+      phase,
+      stepIndex,
+      quizAnswered: Object.keys(answers).length,
+    });
+  }, [hydrated, lesson, phase, stepIndex, answers, isComplete, setCheckpoint, showDone]);
+
+  const goPhase = (next: Phase) => {
+    setPhase(next);
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  };
+
+  const finishLesson = () => {
+    if (!lesson) return;
+    markComplete(lesson.id);
+    setShowDone(true);
+  };
+
+  const lessonIndex = lesson ? lessons.findIndex((l) => l.id === lesson.id) : -1;
+  const nextLesson = lesson
+    ? (lessons.slice(lessonIndex + 1).find((l) => !isComplete(l.id) && l.id !== lesson.id) ??
+      lessons.find((l) => l.id !== lesson.id && !isComplete(l.id)))
+    : undefined;
+
+  const goNextLesson = useCallback(() => {
+    if (nextLesson) {
+      navigation.replace('Lesson', { lessonId: nextLesson.id });
+    } else {
+      navigation.goBack();
+    }
+  }, [navigation, nextLesson]);
 
   if (!lesson) {
     return (
@@ -43,28 +96,6 @@ export function LessonScreen() {
   const onLastStep = stepIndex === lesson.steps.length - 1;
   const allAnswered = Object.keys(answers).length === lesson.quiz.length;
   const correctCount = Object.values(answers).filter(Boolean).length;
-  const lessonIndex = lessons.findIndex((l) => l.id === lesson.id);
-  const nextLesson =
-    lessons.slice(lessonIndex + 1).find((l) => !isComplete(l.id) && l.id !== lesson.id) ??
-    lessons.find((l) => l.id !== lesson.id && !isComplete(l.id));
-
-  const goPhase = (next: Phase) => {
-    setPhase(next);
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
-  };
-
-  const finishLesson = () => {
-    markComplete(lesson.id);
-    setShowDone(true);
-  };
-
-  const goNextLesson = useCallback(() => {
-    if (nextLesson) {
-      navigation.replace('Lesson', { lessonId: nextLesson.id });
-    } else {
-      navigation.goBack();
-    }
-  }, [navigation, nextLesson]);
 
   return (
     <View style={styles.container}>

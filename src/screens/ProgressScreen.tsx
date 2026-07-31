@@ -48,7 +48,7 @@ export function ProgressScreen() {
 
           return (
             <View key={chapter.chapter} style={styles.chapterBlock}>
-              <Text style={styles.eyebrow}>chapter {chapter.chapter}</Text>
+              <Text style={styles.eyebrow}>subject</Text>
               <Text style={styles.chapterTitle}>{chapter.title}</Text>
               <ProgressBar
                 value={chapterDone}

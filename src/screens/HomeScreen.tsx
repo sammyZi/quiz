@@ -34,7 +34,6 @@ function QueueChip({ lesson, onPress }: { lesson: Lesson; onPress: () => void })
     >
       <View style={styles.chipAccent} />
       <View style={styles.chipText}>
-        <Text style={styles.chipId}>{lesson.id}</Text>
         <Text style={styles.chipTitle}>{lesson.title}</Text>
       </View>
     </Pressable>
@@ -43,12 +42,16 @@ function QueueChip({ lesson, onPress }: { lesson: Lesson; onPress: () => void })
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
-  const { completed, isComplete } = useProgress();
+  const { isComplete, getProgress } = useProgress();
 
-  const doneCount = Object.keys(completed).length;
-  const chapter1 = lessons.filter((l) => l.chapter === 1);
-  const next = chapter1.find((lesson) => !isComplete(lesson.id)) ?? chapter1[0] ?? lessons[0];
-  const queue = chapter1
+  const science = lessons.filter((l) => l.chapter === 3);
+  const track = science.length > 0 ? science : lessons.filter((l) => l.chapter === 1);
+  const doneOnTrack = track.filter((l) => isComplete(l.id)).length;
+  const next = track.find((lesson) => !isComplete(lesson.id)) ?? track[0] ?? lessons[0];
+  const nextProgress = next
+    ? getProgress(next.id, next.steps.length, next.quiz.length)
+    : 0;
+  const queue = track
     .filter((lesson) => lesson.id !== next?.id && !isComplete(lesson.id))
     .slice(0, 8);
   const openLesson = (lessonId: string) => navigation.navigate('Lesson', { lessonId });
@@ -68,35 +71,43 @@ export function HomeScreen() {
       <View style={[styles.blob, styles.blobB]} />
       <View style={[styles.blob, styles.blobC]} />
 
-      <AppHeader title="Uplink" eyebrow="chapter 1" />
+      <AppHeader title="Uplink" eyebrow="science" />
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.mascotRow}>
-          <RiveCharacter mood={doneCount === 0 ? 'wave' : 'idle'} size={96} />
+          <RiveCharacter mood={doneOnTrack === 0 ? 'wave' : 'idle'} size={96} animated />
           <View style={styles.mascotCopy}>
-            <Text style={styles.mascotHi}>{doneCount === 0 ? 'Ready when you are' : 'Keep going'}</Text>
+            <Text style={styles.mascotHi}>
+              {doneOnTrack === 0 ? "Let's explore science!" : 'Keep exploring'}
+            </Text>
             <Text style={styles.mascotSub}>
-              {doneCount}/{chapter1.length} lessons done
+              {doneOnTrack}/{track.length} science lessons done
             </Text>
           </View>
         </View>
 
         <View style={styles.progressWrap}>
           <ProgressBar
-            value={chapter1.filter((l) => isComplete(l.id)).length}
-            max={chapter1.length}
-            label="Chapter 1 progress"
+            value={doneOnTrack}
+            max={track.length}
+            label="Science progress"
             color={theme.light.tint.mint}
           />
         </View>
 
         <BrutalCard fill={theme.light.tint.cream} style={styles.hero}>
-          <Text style={styles.eyebrow}>{doneCount === 0 ? 'start here' : "today's lesson"}</Text>
+          <Text style={styles.eyebrow}>{doneOnTrack === 0 ? 'start here' : "today's lesson"}</Text>
           <Text style={styles.heroTitle}>{next.title}</Text>
           <Text style={styles.heroHook}>{next.hook}</Text>
           <View style={styles.heroCta}>
             <BrutalButton
-              label={isComplete(next.id) ? 'Review' : 'Start lesson'}
+              label={
+                isComplete(next.id)
+                  ? 'Review'
+                  : nextProgress > 0
+                    ? 'Continue'
+                    : 'Start lesson'
+              }
               color={theme.light.tint.sun}
               onPress={() => openLesson(next.id)}
             />
@@ -122,10 +133,9 @@ export function HomeScreen() {
           </>
         ) : (
           <BrutalCard fill={theme.light.tint.lilac}>
-            <Text style={styles.heroTitle}>Chapter 1 done</Text>
+            <Text style={styles.heroTitle}>Science track clear</Text>
             <Text style={styles.heroHook}>
-              All {chapter1.length} fundamentals lessons finished. Chapter 2 (AWS) is next on the
-              map.
+              Nice! More science lessons are coming. Peek at Computers in the Lessons tab anytime.
             </Text>
             <View style={styles.heroCta}>
               <BrutalButton
@@ -258,11 +268,6 @@ const styles = StyleSheet.create({
   },
   chipText: {
     gap: 4,
-  },
-  chipId: {
-    fontFamily: theme.font.mono,
-    fontSize: 11,
-    color: theme.light.muted,
   },
   chipTitle: {
     fontFamily: theme.font.display,

@@ -3,30 +3,15 @@
   "id": "cpu-004-stack-vs-heap",
   "module": "cpu",
   "title": "Stack vs heap",
-  "hook": "Your program’s memory isn’t one big pile — stack and heap grow for different reasons.",
+  "hook": "Your app uses two kinds of memory. Stack is for quick, short jobs. Heap is for things that need to last longer.",
   "nodes": [
-    {
-      "id": "code",
-      "label": "Your code",
-      "kind": "client",
-      "lane": 0
-    },
-    {
-      "id": "stack",
-      "label": "Stack",
-      "kind": "generic",
-      "lane": 0
-    },
-    {
-      "id": "heap",
-      "label": "Heap",
-      "kind": "generic",
-      "lane": 1
-    }
+    { "id": "code", "label": "Your code", "kind": "generic", "lane": 0 },
+    { "id": "stack", "label": "Stack", "kind": "generic", "lane": 1 },
+    { "id": "heap", "label": "Heap", "kind": "generic", "lane": 1 }
   ],
   "steps": [
     {
-      "caption": "Call a function: a new stack frame appears with locals and the return address.",
+      "caption": "You call a function. The computer puts its short notes on the Stack — like a sticky note on a pile.",
       "packets": [
         {
           "id": "p1",
@@ -34,16 +19,16 @@
           "to": "stack",
           "variant": "control",
           "outcome": "pass",
-          "label": "frame"
+          "label": "sticky note"
         }
       ],
       "nodeCaptions": {
-        "stack": "Stack frames are LIFO — last call in, first cleaned up when it returns.",
-        "code": "Each call pushes; each return pops. Fast and automatic."
+        "code": "Your code calls a function (a small job).",
+        "stack": "Stack = a neat pile. Newest note goes on top."
       }
     },
     {
-      "caption": "Ask for a chunk that outlives the function — allocation goes to the heap.",
+      "caption": "Sometimes you need a bigger thing that should stay after the function ends. That goes on the Heap.",
       "packets": [
         {
           "id": "p2",
@@ -51,15 +36,16 @@
           "to": "heap",
           "variant": "data",
           "outcome": "pass",
-          "label": "alloc"
+          "label": "keep this"
         }
       ],
       "nodeCaptions": {
-        "heap": "Heap memory sticks around until you free it (or a GC does). Order is flexible, bookkeeping costs more."
+        "code": "You ask for space that can last longer.",
+        "heap": "Heap = a big storage room. Things stay until you clean them up."
       }
     },
     {
-      "caption": "Function returns: the stack frame vanishes. The heap object can still be there.",
+      "caption": "The function finishes. The Stack sticky note is thrown away. The Heap thing can still be there.",
       "packets": [
         {
           "id": "p3",
@@ -67,31 +53,53 @@
           "to": "code",
           "variant": "response",
           "outcome": "pass",
-          "label": "return"
+          "label": "done"
         }
       ],
       "nodeCaptions": {
-        "stack": "Popping the frame reclaims those locals immediately.",
-        "heap": "If nothing points at a heap object anymore, it’s garbage — reclaimable later."
+        "stack": "Top note comes off. Those short notes are gone.",
+        "heap": "Heap stuff does not vanish automatically — it waits until it is freed."
       }
     }
   ],
   "takeaways": [
-    "Stack is for short-lived, nested call data. Heap is for data with flexible lifetime.",
-    "Stack allocation is cheap and automatic; heap allocation needs management.",
-    "Use-after-free and leaks are almost always heap lifetime mistakes."
+    "Stack = short notes for a function. They go away when the function ends.",
+    "Heap = longer storage. You (or the language) must clean it up later.",
+    "Bugs like “memory leaks” usually mean Heap stuff was never cleaned up."
   ],
   "quiz": [
     {
-      "question": "Where do a function’s local variables usually live?",
+      "question": "Where do a function’s short local notes usually live?",
       "choices": [
-        "Only on disk",
-        "On the stack frame for that call",
-        "Only in the GPU",
-        "In DNS"
+        "Only on the hard disk",
+        "On the Stack",
+        "Only in the cloud",
+        "In Wi‑Fi"
       ],
       "correctIndex": 1,
-      "explanation": "Locals are part of the stack frame and disappear when the function returns."
+      "explanation": "Short local values sit on the Stack and leave when the function ends."
+    },
+    {
+      "question": "What is the Heap good for?",
+      "choices": [
+        "Only drawing pictures",
+        "Data that needs to last longer than one function",
+        "Turning the computer off",
+        "Naming Wi‑Fi networks"
+      ],
+      "correctIndex": 1,
+      "explanation": "Heap memory can stay after a function returns."
+    },
+    {
+      "question": "A function ends. What happens to its Stack sticky note?",
+      "choices": [
+        "It stays forever",
+        "It is removed",
+        "It moves to the internet",
+        "It becomes a file on Disk"
+      ],
+      "correctIndex": 1,
+      "explanation": "When the function returns, its Stack frame (sticky note) is popped off."
     }
   ]
 }

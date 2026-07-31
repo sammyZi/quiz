@@ -1,0 +1,105 @@
+{
+  "chapter": 3,
+  "id": "matter-001-ice-water-steam",
+  "module": "matter",
+  "title": "Ice, water, steam",
+  "hook": "Water can be a hard cube, a drink, or a cloud of steam. Heat makes it change.",
+  "nodes": [
+    { "id": "ice", "label": "Ice", "kind": "generic", "lane": 0 },
+    { "id": "water", "label": "Water", "kind": "generic", "lane": 0 },
+    { "id": "steam", "label": "Steam", "kind": "generic", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Ice is water that is frozen hard. Add heat and it starts to melt.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "ice",
+          "to": "water",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "heat"
+        }
+      ],
+      "nodeCaptions": {
+        "ice": "Ice is cold and hard. You can hold a cube.",
+        "water": "Melted ice becomes water you can drink."
+      }
+    },
+    {
+      "caption": "Keep heating the water. Some of it turns into steam in the air.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "water",
+          "to": "steam",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "more heat"
+        }
+      ],
+      "nodeCaptions": {
+        "water": "Hot water can make tiny bits fly up as steam.",
+        "steam": "Steam is water in the air. It looks like a soft cloud."
+      }
+    },
+    {
+      "caption": "Cool the steam down and it can become water again. Same water — different shapes!",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "steam",
+          "to": "water",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "cool"
+        }
+      ],
+      "nodeCaptions": {
+        "steam": "When steam cools, it turns back into drops of water.",
+        "water": "Ice, water, and steam are the same stuff in different forms."
+      }
+    }
+  ],
+  "takeaways": [
+    "Ice, water, and steam are the same water in different forms.",
+    "Heat can melt ice and make steam. Cooling can bring water back.",
+    "Scientists call these solid, liquid, and gas — three shapes of stuff."
+  ],
+  "quiz": [
+    {
+      "question": "What do you add to ice to turn it into water?",
+      "choices": [
+        "More ice",
+        "Heat",
+        "A magnet",
+        "Wi‑Fi"
+      ],
+      "correctIndex": 1,
+      "explanation": "Heat melts ice into water."
+    },
+    {
+      "question": "Steam is…",
+      "choices": [
+        "A kind of rock",
+        "Water in the air",
+        "Only found in space",
+        "A computer chip"
+      ],
+      "correctIndex": 1,
+      "explanation": "Steam is water that has turned into a gas in the air."
+    },
+    {
+      "question": "Ice, water, and steam are…",
+      "choices": [
+        "Three totally different things",
+        "The same water in different forms",
+        "Only made of metal",
+        "Only seen at night"
+      ],
+      "correctIndex": 1,
+      "explanation": "Same water — solid, liquid, or gas."
+    }
+  ]
+}

@@ -3,15 +3,18 @@ import type { NodeKind } from '../lib/lesson.schema';
 import { theme } from '../theme/theme';
 import {
   ByteIcon,
+  CodeIcon,
   CpuIcon,
   DecodeIcon,
   DiskIcon,
   ExecuteIcon,
   FetchIcon,
+  HeapIcon,
   MemoryBoxIcon,
   NumberIcon,
   OpcodeIcon,
   RamIcon,
+  StackIcon,
   TextIcon,
 } from './HardwareIcons';
 
@@ -34,7 +37,10 @@ type IconKey =
   | 'mem'
   | 'fetch'
   | 'decode'
-  | 'execute';
+  | 'execute'
+  | 'stack'
+  | 'heap'
+  | 'code';
 
 const ICON_ROLE: Partial<Record<IconKey, string>> = {
   cpu: 'does work',
@@ -48,6 +54,9 @@ const ICON_ROLE: Partial<Record<IconKey, string>> = {
   fetch: 'get next',
   decode: 'read it',
   execute: 'do it',
+  stack: 'short notes',
+  heap: 'longer storage',
+  code: 'your program',
 };
 
 const ICON_FILL: Partial<Record<IconKey, string>> = {
@@ -62,6 +71,9 @@ const ICON_FILL: Partial<Record<IconKey, string>> = {
   cpu: theme.light.tint.sun,
   ram: theme.light.tint.mint,
   disk: theme.light.tint.peach,
+  stack: theme.light.tint.sun,
+  heap: theme.light.tint.peach,
+  code: theme.light.tint.sky,
 };
 
 const KIND_FILL: Partial<Record<NodeKind, string>> = {
@@ -86,6 +98,9 @@ function resolveIcon(label: string, nodeId?: string): IconKey | null {
   if (id === 'fetch' || /\bfetch\b/.test(key)) return 'fetch';
   if (id === 'decode' || /\bdecode\b/.test(key)) return 'decode';
   if (id === 'execute' || /\bexecute\b/.test(key)) return 'execute';
+  if (id === 'stack' || /\bstack\b/.test(key)) return 'stack';
+  if (id === 'heap' || /\bheap\b/.test(key)) return 'heap';
+  if (id === 'code' || /\byour code\b/.test(key)) return 'code';
 
   if (/\b(cpu|processor)\b/.test(key)) return 'cpu';
   if (/\b(ram)\b/.test(key)) return 'ram';
@@ -110,6 +125,9 @@ function Device({ kind, label, nodeId }: { kind: NodeKind; label: string; nodeId
   if (icon === 'fetch') return <FetchIcon size={34} />;
   if (icon === 'decode') return <DecodeIcon size={34} />;
   if (icon === 'execute') return <ExecuteIcon size={34} />;
+  if (icon === 'stack') return <StackIcon size={34} />;
+  if (icon === 'heap') return <HeapIcon size={34} />;
+  if (icon === 'code') return <CodeIcon size={34} />;
 
   if (kind === 'client') {
     return (

@@ -4,11 +4,13 @@ import type { Lesson } from './lesson.schema';
 // Full lesson map from CURRICULUM.md. Real JSON only exists for some rows —
 // those are playable; the rest show as locked until content is written.
 
+export type CatalogChapterId = 1 | 2 | 3;
+
 export type CatalogLesson = {
   id: string;
   title: string;
   beat: string;
-  chapter: 1 | 2;
+  chapter: CatalogChapterId;
   moduleCode: string;
   moduleLabel: string;
   bridgesFrom?: string;
@@ -17,7 +19,7 @@ export type CatalogLesson = {
 
 export type CatalogModule = {
   key: string;
-  chapter: 1 | 2;
+  chapter: CatalogChapterId;
   code: string;
   label: string;
   blurb: string;
@@ -25,7 +27,7 @@ export type CatalogModule = {
 };
 
 export type CatalogChapter = {
-  chapter: 1 | 2;
+  chapter: CatalogChapterId;
   title: string;
   modules: CatalogModule[];
 };
@@ -39,7 +41,7 @@ type Entry = {
 };
 
 function moduleOf(
-  chapter: 1 | 2,
+  chapter: CatalogChapterId,
   code: string,
   label: string,
   blurb: string,
@@ -65,35 +67,35 @@ function moduleOf(
 }
 
 export const catalogModules: CatalogModule[] = [
-  moduleOf(1, 'cpu', '1.1 · How a computer works', 'CPU, RAM, disk, registers — data moving between them.', [
+  moduleOf(1, 'cpu', 'How a computer works', 'CPU, RAM, disk, registers — data moving between them.', [
     { id: 'cpu-001-cpu-memory-storage', title: 'CPU, memory, storage', beat: 'Same data, three places, each 100× slower than the last' },
     { id: 'cpu-002-binary-data', title: 'Binary & data representation', beat: 'One byte, read four different ways' },
     { id: 'cpu-003-fetch-decode-execute', title: 'Fetch–decode–execute', beat: 'One instruction walking the cycle, over and over' },
-    { id: 'cpu-004-stack-vs-heap', title: 'Stack vs heap', beat: 'Two regions, allocation moving into each differently' },
+    { id: 'cpu-004-stack-vs-heap', title: 'Stack vs heap', beat: 'Stack = short sticky notes. Heap = longer storage room.' },
   ]),
-  moduleOf(1, 'ds', '1.2 · Data structures', 'Cells and pointers — best engine fit in the curriculum.', [
+  moduleOf(1, 'ds', 'Data structures', 'Cells and pointers — best engine fit in the curriculum.', [
     { id: 'ds-001-arrays', title: 'Arrays & contiguous memory', beat: 'Index math jumps straight to a slot, no walking' },
     { id: 'ds-002-linked-lists', title: 'Linked lists', beat: 'Walk node to node — no jumping, that’s the trade' },
     { id: 'ds-003-hash-maps', title: 'Hash maps', beat: 'Key goes through a hash function, lands in one bucket' },
     { id: 'ds-004-trees', title: 'Trees', beat: 'One search halves the remaining nodes at every step' },
     { id: 'ds-005-graphs', title: 'Graphs', beat: 'Same nodes, but connections go any direction' },
   ]),
-  moduleOf(1, 'algo', '1.3 · Algorithms & complexity', 'Array cells and call frames — pointers sweeping through.', [
+  moduleOf(1, 'algo', 'Algorithms & complexity', 'Array cells and call frames — pointers sweeping through.', [
     { id: 'algo-001-linear-vs-binary-search', title: 'Linear vs binary search', beat: 'Two pointers racing the same sorted array' },
     { id: 'algo-002-sorting', title: 'Sorting', beat: 'Elements physically swapping into place' },
     { id: 'algo-003-recursion-call-stack', title: 'Recursion & the call stack', beat: 'Frames stacking up, then unwinding' },
     { id: 'algo-004-big-o', title: 'Big O', beat: 'Same three algorithms, input grows, one falls off a cliff' },
   ]),
-  moduleOf(1, 'os', '1.4 · Operating systems', 'Processes, threads, scheduler, shared memory.', [
+  moduleOf(1, 'os', 'Operating systems', 'Processes, threads, scheduler, shared memory.', [
     { id: 'os-001-processes-vs-threads', title: 'Processes vs threads', beat: 'Two processes isolated, two threads sharing one space' },
     { id: 'os-002-scheduling', title: 'Scheduling', beat: 'CPU switching between three processes, none finishing first' },
     { id: 'os-003-concurrency-race-conditions', title: 'Concurrency & race conditions', beat: 'Two threads hit the same value, result depends on timing' },
     { id: 'os-004-files-io', title: 'Files & I/O', beat: 'Program asks the OS, OS asks the disk, everyone waits' },
   ]),
-  moduleOf(1, 'build', '1.5 · Code to machine', 'Pipeline stages — source transformed at each step.', [
+  moduleOf(1, 'build', 'Code to machine', 'Pipeline stages — source transformed at each step.', [
     { id: 'build-001-compiled-vs-interpreted', title: 'Compiled vs interpreted', beat: 'Same source, two very different paths to running' },
   ]),
-  moduleOf(1, 'net', '1.6 · How the internet works', 'Client, server, router, firewall — packets in motion.', [
+  moduleOf(1, 'net', 'How the internet works', 'Client, server, router, firewall — packets in motion.', [
     { id: 'net-001-client-server', title: 'Client & server', beat: 'Request goes out, response comes back' },
     { id: 'net-002-ip-addresses', title: 'IP addresses', beat: 'A packet finds its way via the router' },
     { id: 'net-003-dns', title: 'DNS', beat: 'Name becomes an address before the real request' },
@@ -110,7 +112,34 @@ export const catalogModules: CatalogModule[] = [
     { id: 'net-014-rate-limiting', title: 'Rate limiting', beat: 'Gate starts blocking after N requests in a window' },
     { id: 'net-015-scaling', title: 'Scaling', beat: 'One bigger server vs three identical smaller ones' },
   ]),
-  moduleOf(2, 'aws', 'AWS bridge', 'Chapter 1 concepts, renamed to their AWS services.', [
+  // Science for kids (see claude/SCIENCE_CURRICULUM.md)
+  moduleOf(3, 'matter', 'Stuff around us', 'Ice, water, mixes — heat and bits moving.', [
+    { id: 'matter-001-ice-water-steam', title: 'Ice, water, steam', beat: 'Same water, three shapes when heat moves' },
+    { id: 'matter-002-mix-and-separate', title: 'Mix and separate', beat: 'Two things mix; a filter pulls them apart' },
+    { id: 'matter-003-sink-or-float', title: 'Sink or float', beat: 'Object meets water — down or up' },
+    { id: 'matter-004-hot-and-cold', title: 'Hot and cold', beat: 'Heat moves from hot toward cold' },
+  ]),
+  moduleOf(3, 'force', 'Push and pull', 'Hands, balls, magnets — pushes and pulls.', [
+    { id: 'force-001-push-pull', title: 'Push and pull', beat: 'Hand pushes ball; ball moves' },
+    { id: 'force-002-gravity', title: 'Gravity', beat: 'Ball falls down to the ground' },
+    { id: 'force-003-magnets', title: 'Magnets', beat: 'Magnet pulls a metal bit closer' },
+  ]),
+  moduleOf(3, 'life', 'Living things', 'Sun, plants, food, senses.', [
+    { id: 'life-001-plants-need-sun', title: 'Plants need sun', beat: 'Sunlight goes into the leaf' },
+    { id: 'life-002-animals-need-food', title: 'Animals need food', beat: 'Food in; energy out as play' },
+    { id: 'life-003-five-senses', title: 'Your five senses', beat: 'World meets eye, ear, nose, tongue, skin' },
+  ]),
+  moduleOf(3, 'earth', 'Our world', 'Day, night, weather, seasons.', [
+    { id: 'earth-001-day-and-night', title: 'Day and night', beat: 'Earth turns; light hits one side' },
+    { id: 'earth-002-weather', title: 'Weather', beat: 'Cloud holds water; rain falls' },
+    { id: 'earth-003-seasons', title: 'Seasons', beat: 'Earth tip + sun → warm or cold times' },
+  ]),
+  moduleOf(3, 'energy', 'Light and sound', 'Lamps, shadows, drums.', [
+    { id: 'energy-001-light', title: 'Light', beat: 'Lamp sends light to your eye' },
+    { id: 'energy-002-shadows', title: 'Shadows', beat: 'Light hits a toy; dark shape on the wall' },
+    { id: 'energy-003-sound', title: 'Sound', beat: 'Drum bang → air wiggle → ear' },
+  ]),
+  moduleOf(2, 'aws', 'AWS bridge', 'Computer ideas, renamed to their AWS services.', [
     { id: 'aws-001-security-groups', title: 'Blocking traffic in the cloud', beat: 'Security Groups', bridgesFrom: 'net-006 firewall', awsService: 'Security Groups' },
     { id: 'aws-002-route-53', title: "Finding your app's address", beat: 'Route 53', bridgesFrom: 'net-003 DNS', awsService: 'Route 53' },
     { id: 'aws-003-elastic-load-balancer', title: 'Spreading the load', beat: 'Elastic Load Balancer', bridgesFrom: 'net-009 load balancers', awsService: 'ELB' },
@@ -130,8 +159,9 @@ export const catalogModules: CatalogModule[] = [
 ];
 
 export const catalogChapters: CatalogChapter[] = [
-  { chapter: 1, title: 'CS fundamentals', modules: catalogModules.filter((m) => m.chapter === 1) },
-  { chapter: 2, title: 'The same ideas, in AWS', modules: catalogModules.filter((m) => m.chapter === 2) },
+  { chapter: 3, title: 'Science', modules: catalogModules.filter((m) => m.chapter === 3) },
+  { chapter: 1, title: 'Computers', modules: catalogModules.filter((m) => m.chapter === 1) },
+  { chapter: 2, title: 'Cloud (AWS)', modules: catalogModules.filter((m) => m.chapter === 2) },
 ];
 
 export const catalogLessons: CatalogLesson[] = catalogModules.flatMap((m) => m.lessons);

@@ -1,8 +1,9 @@
 # Curriculum — full lesson map
 
-Two chapters. Chapter 1 is CS fundamentals, split into modules. Chapter 2 is
-the cloud/AWS bridge, which reuses Chapter 1's diagrams with the `awsBridge`
-field populated.
+**Kids science** lives in Chapter 3 — see [`SCIENCE_CURRICULUM.md`](./SCIENCE_CURRICULUM.md).
+
+Also: Chapter 1 is CS fundamentals. Chapter 2 is the cloud/AWS bridge
+(`awsBridge` field).
 
 Lesson IDs are **module-prefixed, not globally numbered** (`ds-003-hash-maps`),
 so adding or cutting a lesson never renumbers anything downstream.
