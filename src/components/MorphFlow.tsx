@@ -20,6 +20,8 @@ const ACTION_ART: { test: RegExp; key: string }[] = [
   { test: /pour/i, key: 'pour' },
   { test: /sort/i, key: 'sort' },
   { test: /stir/i, key: 'stir' },
+  { test: /drop/i, key: 'drop' },
+  { test: /bob/i, key: 'bob' },
 ];
 
 type Props = {

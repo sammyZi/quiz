@@ -20,4 +20,9 @@ export const nodeArt: Record<string, NodeArtClip> = {
   mix: { frames: [require('../../assets/nodes/node-mix.webp')] },
   filter: { frames: [require('../../assets/nodes/node-filter.webp')] },
   apart: { frames: [require('../../assets/nodes/node-apart.webp')] },
+  bowl: { frames: [require('../../assets/nodes/node-bowl.webp')] },
+  sink: { frames: [require('../../assets/nodes/node-sink.webp')] },
+  float: { frames: [require('../../assets/nodes/node-float.webp')] },
+  drop: { frames: [require('../../assets/nodes/node-drop.webp')] },
+  bob: { frames: [require('../../assets/nodes/node-bob.webp')] },
 };

@@ -1,0 +1,122 @@
+{
+  "chapter": 3,
+  "id": "matter-003-sink-or-float",
+  "module": "matter",
+  "title": "Sink or float",
+  "hook": "Drop something in water. Does it go down, or stay on top?",
+  "diagram": "morph",
+  "nodes": [
+    { "id": "bowl", "label": "Water", "kind": "generic", "lane": 0 },
+    { "id": "sink", "label": "Sink", "kind": "generic", "lane": 0 },
+    { "id": "float", "label": "Float", "kind": "generic", "lane": 0 }
+  ],
+  "steps": [
+    {
+      "caption": "Here is a bowl of water. We will drop things in and watch.",
+      "packets": [
+        {
+          "id": "p0",
+          "from": "bowl",
+          "to": "bowl",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "water"
+        }
+      ],
+      "nodeCaptions": {
+        "bowl": "A bowl of water waiting for a try."
+      }
+    },
+    {
+      "caption": "Drop a heavy rock in. It goes down to the bottom — that is sinking.",
+      "packets": [
+        {
+          "id": "p1",
+          "from": "bowl",
+          "to": "sink",
+          "variant": "control",
+          "outcome": "pass",
+          "label": "drop"
+        }
+      ],
+      "nodeCaptions": {
+        "bowl": "The rock falls into the water.",
+        "sink": "Heavy things can sink."
+      }
+    },
+    {
+      "caption": "Try a light boat. It stays on top — that is floating.",
+      "packets": [
+        {
+          "id": "p2",
+          "from": "sink",
+          "to": "float",
+          "variant": "response",
+          "outcome": "pass",
+          "label": "bob"
+        }
+      ],
+      "nodeCaptions": {
+        "sink": "The rock stayed down.",
+        "float": "Light boats can float."
+      }
+    },
+    {
+      "caption": "Heavy things often sink. Light things can float. Try more things at home!",
+      "packets": [
+        {
+          "id": "p3",
+          "from": "float",
+          "to": "bowl",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "again"
+        }
+      ],
+      "nodeCaptions": {
+        "float": "Floating means staying up.",
+        "bowl": "Same water — different results."
+      }
+    }
+  ],
+  "takeaways": [
+    "Sink means it goes down in the water.",
+    "Float means it stays on top of the water.",
+    "Heavy things often sink. Light things can float."
+  ],
+  "quiz": [
+    {
+      "question": "If a rock goes to the bottom of the bowl, it…",
+      "choices": [
+        "Floats",
+        "Sinks",
+        "Turns into steam",
+        "Becomes a boat"
+      ],
+      "correctIndex": 1,
+      "explanation": "Going down to the bottom is sinking."
+    },
+    {
+      "question": "A toy boat on top of the water is…",
+      "choices": [
+        "Sinking",
+        "Floating",
+        "Melting",
+        "A magnet"
+      ],
+      "correctIndex": 1,
+      "explanation": "Staying on top means floating."
+    },
+    {
+      "question": "Heavy things in water often…",
+      "choices": [
+        "Fly away",
+        "Sink",
+        "Become ice",
+        "Turn off Wi‑Fi"
+      ],
+      "correctIndex": 1,
+      "explanation": "Heavy things often sink."
+    }
+  ]
+}
