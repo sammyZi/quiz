@@ -14,8 +14,13 @@ import { nodeArt } from '../lib/nodeArt';
 import { theme } from '../theme/theme';
 import { NodeFrameLoop } from './NodeFrameLoop';
 
-const heatArt = nodeArt.heat?.frames[0];
-const coolArt = nodeArt.cool?.frames[0];
+const ACTION_ART: { test: RegExp; key: string }[] = [
+  { test: /heat/i, key: 'heat' },
+  { test: /cool/i, key: 'cool' },
+  { test: /pour/i, key: 'pour' },
+  { test: /sort/i, key: 'sort' },
+  { test: /stir/i, key: 'stir' },
+];
 
 type Props = {
   lesson: Lesson;
@@ -31,13 +36,14 @@ function labelFor(lesson: Lesson, nodeId: string) {
 }
 
 function actionIcon(action: string): ImageSourcePropType | null {
-  if (/heat/i.test(action)) return heatArt ?? null;
-  if (/cool/i.test(action)) return coolArt ?? null;
+  for (const { test, key } of ACTION_ART) {
+    if (test.test(action)) return nodeArt[key]?.frames[0] ?? null;
+  }
   return null;
 }
 
 /**
- * Single full-bleed form that morphs (ice → water → steam). No cards.
+ * Single form that morphs on Next (ice→water→steam, mix→filter→apart). No cards.
  */
 export function MorphFlow({ lesson, stepIndex }: Props) {
   const { width: winW, height: winH } = useWindowDimensions();
@@ -175,7 +181,7 @@ export function MorphFlow({ lesson, stepIndex }: Props) {
       <Text style={styles.name}>{name}</Text>
       <Text style={styles.hint}>
         {stepIndex === 0
-          ? 'Tap Next — heat will melt the ice'
+          ? 'Tap Next to see what happens'
           : `${labelFor(lesson, fromId)} → ${labelFor(lesson, toId)}`}
       </Text>
     </View>

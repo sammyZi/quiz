@@ -4,6 +4,7 @@
   "module": "matter",
   "title": "Mix and separate",
   "hook": "Sand and water can mix in a bowl. A filter can pull them apart again.",
+  "diagram": "morph",
   "nodes": [
     { "id": "mix", "label": "Mix", "kind": "generic", "lane": 0 },
     { "id": "filter", "label": "Filter", "kind": "generic", "lane": 0 },
@@ -11,7 +12,23 @@
   ],
   "steps": [
     {
-      "caption": "Stir sand and water together. Now they look like one muddy mix.",
+      "caption": "Sand and water are stirred together. Now they look like one muddy mix.",
+      "packets": [
+        {
+          "id": "p0",
+          "from": "mix",
+          "to": "mix",
+          "variant": "data",
+          "outcome": "pass",
+          "label": "mix"
+        }
+      ],
+      "nodeCaptions": {
+        "mix": "Sand bits and water are all swirled together."
+      }
+    },
+    {
+      "caption": "Pour the mix into a filter. The filter will help sort them.",
       "packets": [
         {
           "id": "p1",
@@ -23,12 +40,12 @@
         }
       ],
       "nodeCaptions": {
-        "mix": "Sand bits and water are all swirled together.",
-        "filter": "We will pour the mix into a filter next."
+        "mix": "We pour the muddy mix.",
+        "filter": "The filter is ready to sort."
       }
     },
     {
-      "caption": "The filter lets water through. The sand stays behind.",
+      "caption": "The filter lets water through. The sand stays behind — they are apart!",
       "packets": [
         {
           "id": "p2",
@@ -41,11 +58,11 @@
       ],
       "nodeCaptions": {
         "filter": "Tiny holes let water drip. Sand is too big to pass.",
-        "apart": "Now sand and water are in two places again."
+        "apart": "Sand in one place. Water in another."
       }
     },
     {
-      "caption": "Mixing puts things together. Filtering can pull them apart.",
+      "caption": "You can stir them together again any time. Mixing and separating are opposites!",
       "packets": [
         {
           "id": "p3",
@@ -53,12 +70,12 @@
           "to": "mix",
           "variant": "response",
           "outcome": "pass",
-          "label": "stir again"
+          "label": "stir"
         }
       ],
       "nodeCaptions": {
-        "apart": "Sand in one pile. Water in another.",
-        "mix": "You can mix them again any time you want."
+        "apart": "They are separate now.",
+        "mix": "Stir again and they become a mix."
       }
     }
   ],
